@@ -1,0 +1,88 @@
+package com.smekhnyov.carts.ui.theme
+
+import androidx.compose.ui.graphics.Color
+
+// Основная фиолетовая палитра приложения.
+val Violet = Color(0xFF6A3DE8)
+val VioletDeep = Color(0xFF3F1D9E)
+val VioletLight = Color(0xFFE9DDFF)
+val Berry = Color(0xFFB03A66)
+val Teal = Color(0xFF006A6A)
+
+val LightColorScheme = androidx.compose.material3.lightColorScheme(
+    primary = Color(0xFF6A3DE8),
+    onPrimary = Color(0xFFFFFFFF),
+    primaryContainer = Color(0xFFE9DDFF),
+    onPrimaryContainer = Color(0xFF25005A),
+    inversePrimary = Color(0xFFCFBCFF),
+    secondary = Color(0xFF9C3F66),
+    onSecondary = Color(0xFFFFFFFF),
+    secondaryContainer = Color(0xFFFFD9E2),
+    onSecondaryContainer = Color(0xFF3D0022),
+    tertiary = Color(0xFF006A6A),
+    onTertiary = Color(0xFFFFFFFF),
+    tertiaryContainer = Color(0xFF9CF1EF),
+    onTertiaryContainer = Color(0xFF002020),
+    background = Color(0xFFFDF8FF),
+    onBackground = Color(0xFF1C1B1F),
+    surface = Color(0xFFFDF8FF),
+    onSurface = Color(0xFF1C1B1F),
+    surfaceVariant = Color(0xFFE7E0EB),
+    onSurfaceVariant = Color(0xFF49454F),
+    surfaceTint = Color(0xFF6A3DE8),
+    inverseSurface = Color(0xFF313033),
+    inverseOnSurface = Color(0xFFF4EFF4),
+    error = Color(0xFFB3261E),
+    onError = Color(0xFFFFFFFF),
+    errorContainer = Color(0xFFF9DEDC),
+    onErrorContainer = Color(0xFF410E0B),
+    outline = Color(0xFF79747E),
+    outlineVariant = Color(0xFFCAC4D0),
+    scrim = Color(0xFF000000),
+    surfaceBright = Color(0xFFFFF8FF),
+    surfaceDim = Color(0xFFDED8E1),
+    surfaceContainerLowest = Color(0xFFFFFFFF),
+    surfaceContainerLow = Color(0xFFF8F2FA),
+    surfaceContainer = Color(0xFFF2ECF4),
+    surfaceContainerHigh = Color(0xFFECE6EE),
+    surfaceContainerHighest = Color(0xFFE6E0E9),
+)
+
+val DarkColorScheme = androidx.compose.material3.darkColorScheme(
+    primary = Color(0xFFCFBCFF),
+    onPrimary = Color(0xFF381E72),
+    primaryContainer = Color(0xFF4F378B),
+    onPrimaryContainer = Color(0xFFEADDFF),
+    inversePrimary = Color(0xFF6A3DE8),
+    secondary = Color(0xFFFFB0C8),
+    onSecondary = Color(0xFF5E1137),
+    secondaryContainer = Color(0xFF7E284E),
+    onSecondaryContainer = Color(0xFFFFD9E2),
+    tertiary = Color(0xFF80D5D4),
+    onTertiary = Color(0xFF003737),
+    tertiaryContainer = Color(0xFF005050),
+    onTertiaryContainer = Color(0xFF9CF1EF),
+    background = Color(0xFF141218),
+    onBackground = Color(0xFFE6E1E9),
+    surface = Color(0xFF141218),
+    onSurface = Color(0xFFE6E1E9),
+    surfaceVariant = Color(0xFF49454F),
+    onSurfaceVariant = Color(0xFFCAC4D0),
+    surfaceTint = Color(0xFFCFBCFF),
+    inverseSurface = Color(0xFFE6E1E9),
+    inverseOnSurface = Color(0xFF313033),
+    error = Color(0xFFF2B8B5),
+    onError = Color(0xFF601410),
+    errorContainer = Color(0xFF8C1D18),
+    onErrorContainer = Color(0xFFF9DEDC),
+    outline = Color(0xFF938F99),
+    outlineVariant = Color(0xFF49454F),
+    scrim = Color(0xFF000000),
+    surfaceBright = Color(0xFF3B383E),
+    surfaceDim = Color(0xFF141218),
+    surfaceContainerLowest = Color(0xFF0F0D13),
+    surfaceContainerLow = Color(0xFF1D1B20),
+    surfaceContainer = Color(0xFF211F26),
+    surfaceContainerHigh = Color(0xFF2B2930),
+    surfaceContainerHighest = Color(0xFF36343B),
+)

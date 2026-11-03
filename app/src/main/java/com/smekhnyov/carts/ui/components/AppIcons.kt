@@ -330,4 +330,109 @@ object AppIcons {
             }
         }.build()
     }
+
+    /** Изменение порядка карт. */
+    val Sort: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "Sort",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f,
+        ).apply {
+            path(fill = SolidColor(Color.Black)) {
+                moveTo(3f, 6f)
+                horizontalLineTo(15f)
+                verticalLineTo(8f)
+                horizontalLineTo(3f)
+                close()
+                moveTo(3f, 11f)
+                horizontalLineTo(11f)
+                verticalLineTo(13f)
+                horizontalLineTo(3f)
+                close()
+                moveTo(3f, 16f)
+                horizontalLineTo(7f)
+                verticalLineTo(18f)
+                horizontalLineTo(3f)
+                close()
+                moveTo(17f, 4f)
+                horizontalLineTo(19f)
+                verticalLineTo(15.2f)
+                lineTo(20.1f, 14.1f)
+                lineTo(21.5f, 15.5f)
+                lineTo(18f, 19f)
+                lineTo(14.5f, 15.5f)
+                lineTo(15.9f, 14.1f)
+                lineTo(17f, 15.2f)
+                close()
+            }
+        }.build()
+    }
+
+    /** Экспорт данных из приложения. */
+    val Export: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "Export",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f,
+        ).apply {
+            path(fill = SolidColor(Color.Black)) {
+                moveTo(12f, 3f)
+                lineTo(16f, 7f)
+                lineTo(14.6f, 8.4f)
+                lineTo(13f, 6.8f)
+                verticalLineTo(15f)
+                horizontalLineTo(11f)
+                verticalLineTo(6.8f)
+                lineTo(9.4f, 8.4f)
+                lineTo(8f, 7f)
+                close()
+                moveTo(5f, 14f)
+                horizontalLineTo(7f)
+                verticalLineTo(19f)
+                horizontalLineTo(17f)
+                verticalLineTo(14f)
+                horizontalLineTo(19f)
+                verticalLineTo(21f)
+                horizontalLineTo(5f)
+                close()
+            }
+        }.build()
+    }
+
+    /** Импорт данных в приложение. */
+    val Import: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "Import",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f,
+        ).apply {
+            path(fill = SolidColor(Color.Black)) {
+                moveTo(11f, 3f)
+                horizontalLineTo(13f)
+                verticalLineTo(11.2f)
+                lineTo(14.6f, 9.6f)
+                lineTo(16f, 11f)
+                lineTo(12f, 15f)
+                lineTo(8f, 11f)
+                lineTo(9.4f, 9.6f)
+                lineTo(11f, 11.2f)
+                close()
+                moveTo(5f, 14f)
+                horizontalLineTo(7f)
+                verticalLineTo(19f)
+                horizontalLineTo(17f)
+                verticalLineTo(14f)
+                horizontalLineTo(19f)
+                verticalLineTo(21f)
+                horizontalLineTo(5f)
+                close()
+            }
+        }.build()
+    }
 }

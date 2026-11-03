@@ -4,20 +4,16 @@ import android.app.Activity
 import android.view.WindowManager
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
@@ -25,7 +21,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -60,17 +55,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.luminance
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smekhnyov.carts.data.CardFormat
@@ -92,7 +84,6 @@ fun CardDetailScreen(
     onMessage: (String) -> Unit,
 ) {
     val palette = paletteFor(card.paletteIndex)
-    val shape = RoundedCornerShape(30.dp)
     var showDeleteDialog by remember { mutableStateOf(false) }
     var menuExpanded by remember { mutableStateOf(false) }
     var generation by remember(card.id) { mutableIntStateOf(0) }
@@ -102,17 +93,15 @@ fun CardDetailScreen(
 
     KeepScreenBright()
     SystemBars(
-        background = palette.start,
-        darkIcons = palette.start.luminance() > 0.55f,
+        background = palette.container,
+        darkIcons = palette.container.luminance() > 0.55f,
     )
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(palette.brush),
+            .background(palette.container),
     ) {
-        DetailDecorations(emoji = card.emblemEmoji)
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -127,8 +116,8 @@ fun CardDetailScreen(
                 FilledTonalIconButton(
                     onClick = onBack,
                     colors = androidx.compose.material3.IconButtonDefaults.filledTonalIconButtonColors(
-                        containerColor = palette.onColor.copy(alpha = 0.16f),
-                        contentColor = palette.onColor,
+                        containerColor = palette.content.copy(alpha = 0.12f),
+                        contentColor = palette.content,
                     ),
                 ) {
                     Icon(
@@ -141,8 +130,8 @@ fun CardDetailScreen(
                     FilledTonalIconButton(
                         onClick = { menuExpanded = true },
                         colors = androidx.compose.material3.IconButtonDefaults.filledTonalIconButtonColors(
-                            containerColor = palette.onColor.copy(alpha = 0.16f),
-                            contentColor = palette.onColor,
+                            containerColor = palette.content.copy(alpha = 0.12f),
+                            contentColor = palette.content,
                         ),
                     ) {
                         Icon(
@@ -209,18 +198,18 @@ fun CardDetailScreen(
                         emoji = card.emblemEmoji,
                         imagePath = card.emblemImagePath,
                         size = 66.dp,
-                        background = palette.onColor.copy(alpha = 0.16f),
-                        contentColor = palette.onColor,
-                        borderColor = palette.onColor.copy(alpha = 0.20f),
+                        background = palette.content.copy(alpha = 0.12f),
+                        contentColor = palette.content,
+                        borderColor = palette.content.copy(alpha = 0.16f),
                     )
                     Spacer(Modifier.width(16.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = card.name,
                             style = MaterialTheme.typography.headlineLarge,
-                            color = palette.onColor,
+                            color = palette.content,
                             maxLines = 2,
-                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                            overflow = TextOverflow.Ellipsis,
                         )
                         Spacer(Modifier.height(4.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -234,7 +223,7 @@ fun CardDetailScreen(
                             Text(
                                 text = "${card.format.label} · генерируется заново",
                                 style = MaterialTheme.typography.labelMedium,
-                                color = palette.onColor.copy(alpha = 0.68f),
+                                color = palette.content.copy(alpha = 0.68f),
                             )
                         }
                     }
@@ -245,8 +234,8 @@ fun CardDetailScreen(
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(32.dp),
-                    color = Color.White,
-                    shadowElevation = 18.dp,
+                    color = MaterialTheme.colorScheme.surface,
+                    shadowElevation = 2.dp,
                 ) {
                     Column(
                         modifier = Modifier.padding(horizontal = 18.dp, vertical = 18.dp),
@@ -259,7 +248,7 @@ fun CardDetailScreen(
                             Text(
                                 text = card.format.label.uppercase(),
                                 style = MaterialTheme.typography.labelMedium,
-                                color = Color(0xFF6F6876),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 letterSpacing = 1.4.sp,
                             )
                             Spacer(Modifier.weight(1f))
@@ -273,10 +262,6 @@ fun CardDetailScreen(
                                         )
                                     }
                                 },
-                                colors = androidx.compose.material3.IconButtonDefaults.filledTonalIconButtonColors(
-                                    containerColor = Color(0xFFF1ECF4),
-                                    contentColor = Color(0xFF2B2631),
-                                ),
                                 modifier = Modifier
                                     .size(38.dp)
                                     .rotate(rotation.value),
@@ -303,7 +288,9 @@ fun CardDetailScreen(
                         BarcodeView(
                             content = card.code,
                             format = card.format,
-                            modifier = barcodeModifier.padding(horizontal = if (card.format.isSquare) 12.dp else 0.dp),
+                            modifier = barcodeModifier.padding(
+                                horizontal = if (card.format.isSquare) 12.dp else 0.dp,
+                            ),
                             regenerationKey = generation,
                         )
 
@@ -313,7 +300,7 @@ fun CardDetailScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(18.dp))
-                                .background(Color(0xFFF4F0F7))
+                                .background(MaterialTheme.colorScheme.surfaceContainerHigh)
                                 .padding(start = 16.dp, end = 4.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
@@ -322,7 +309,7 @@ fun CardDetailScreen(
                                 style = MaterialTheme.typography.titleMedium,
                                 fontFamily = FontFamily.Monospace,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF1B1720),
+                                color = MaterialTheme.colorScheme.onSurface,
                                 letterSpacing = 1.2.sp,
                                 modifier = Modifier
                                     .weight(1f)
@@ -337,7 +324,7 @@ fun CardDetailScreen(
                                 Icon(
                                     imageVector = AppIcons.Copy,
                                     contentDescription = "Копировать код",
-                                    tint = Color(0xFF615B68),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
                         }
@@ -346,7 +333,7 @@ fun CardDetailScreen(
                         Text(
                             text = "Покажите код на кассе. Он каждый раз создаётся из данных карты.",
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color(0xFF7A7480),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center,
                         )
                     }
@@ -362,8 +349,8 @@ fun CardDetailScreen(
                         onClick = onEdit,
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.filledTonalButtonColors(
-                            containerColor = palette.onColor.copy(alpha = 0.18f),
-                            contentColor = palette.onColor,
+                            containerColor = palette.content.copy(alpha = 0.12f),
+                            contentColor = palette.content,
                         ),
                     ) {
                         Icon(
@@ -378,7 +365,7 @@ fun CardDetailScreen(
                         onClick = { showDeleteDialog = true },
                         modifier = Modifier.weight(0.7f),
                         colors = ButtonDefaults.textButtonColors(
-                            contentColor = palette.onColor.copy(alpha = 0.85f),
+                            contentColor = palette.content.copy(alpha = 0.85f),
                         ),
                     ) {
                         Icon(
@@ -395,7 +382,7 @@ fun CardDetailScreen(
                 Text(
                     text = "Данные хранятся только на этом устройстве",
                     style = MaterialTheme.typography.labelSmall,
-                    color = palette.onColor.copy(alpha = 0.46f),
+                    color = palette.content.copy(alpha = 0.46f),
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                 )
             }
@@ -433,33 +420,6 @@ fun CardDetailScreen(
             },
         )
     }
-}
-
-@Composable
-private fun BoxScope.DetailDecorations(emoji: String?) {
-    Canvas(Modifier.fillMaxSize()) {
-        drawCircle(
-            color = Color.White.copy(alpha = 0.08f),
-            radius = size.width * 0.82f,
-            center = Offset(size.width * 1.03f, -size.height * 0.05f),
-        )
-        drawCircle(
-            color = Color.White.copy(alpha = 0.05f),
-            radius = size.width * 0.55f,
-            center = Offset(-size.width * 0.12f, size.height * 0.93f),
-        )
-    }
-    Text(
-        text = emoji ?: "🛍️",
-        fontSize = 210.sp,
-        modifier = Modifier
-            .align(Alignment.TopEnd)
-            .padding(top = 80.dp, end = 2.dp)
-            .graphicsLayer {
-                alpha = 0.08f
-                rotationZ = -14f
-            },
-    )
 }
 
 @Composable

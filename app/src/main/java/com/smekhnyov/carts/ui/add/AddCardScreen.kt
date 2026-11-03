@@ -6,7 +6,6 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -77,9 +76,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -97,7 +94,7 @@ import com.smekhnyov.carts.barcode.BarcodeRenderer
 import com.smekhnyov.carts.data.CardDraft
 import com.smekhnyov.carts.data.CardFormat
 import com.smekhnyov.carts.data.LoyaltyCard
-import com.smekhnyov.carts.ui.cards.CardPalettes
+import com.smekhnyov.carts.ui.cards.CardPaletteCount
 import com.smekhnyov.carts.ui.cards.DefaultEmblem
 import com.smekhnyov.carts.ui.cards.EmblemPresets
 import com.smekhnyov.carts.ui.cards.paletteFor
@@ -412,8 +409,8 @@ fun AddCardScreen(
                 )
                 Spacer(Modifier.height(12.dp))
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    items(CardPalettes.indices.toList()) { index ->
-                        val palette = CardPalettes[index]
+                    items(CardPaletteCount) { index ->
+                        val palette = paletteFor(index)
                         val selected = paletteIndex == index
                         Box(
                             modifier = Modifier
@@ -432,7 +429,7 @@ fun AddCardScreen(
                                 )
                                 .padding(5.dp)
                                 .clip(CircleShape)
-                                .background(palette.brush)
+                                .background(palette.container)
                                 .clickable {
                                     paletteIndex = index
                                 }
@@ -446,7 +443,7 @@ fun AddCardScreen(
                                 Icon(
                                     imageVector = Icons.Filled.Check,
                                     contentDescription = null,
-                                    tint = palette.onColor,
+                                    tint = palette.content,
                                     modifier = Modifier.size(18.dp),
                                 )
                             }
@@ -661,33 +658,13 @@ private fun DraftPreviewCard(
             .fillMaxWidth()
             .height(228.dp)
             .shadow(
-                elevation = 20.dp,
+                elevation = 2.dp,
                 shape = shape,
-                ambientColor = palette.glow.copy(alpha = 0.55f),
-                spotColor = palette.glow.copy(alpha = 0.55f),
             )
             .clip(shape)
-            .background(palette.brush),
+            .background(palette.container)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, shape),
     ) {
-        Canvas(Modifier.fillMaxSize()) {
-            drawCircle(
-                color = Color.White.copy(alpha = 0.10f),
-                radius = size.width * 0.62f,
-                center = Offset(size.width * 1.02f, -size.height * 0.18f),
-            )
-        }
-        Text(
-            text = emoji,
-            fontSize = 150.sp,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(end = 18.dp, bottom = 12.dp)
-                .graphicsLayer {
-                    alpha = 0.11f
-                    rotationZ = -12f
-                },
-        )
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -698,10 +675,10 @@ private fun DraftPreviewCard(
                     modifier = Modifier
                         .size(48.dp)
                         .clip(CircleShape)
-                        .background(palette.onColor.copy(alpha = 0.16f))
+                        .background(palette.content.copy(alpha = 0.10f))
                         .border(
                             1.dp,
-                            palette.onColor.copy(alpha = 0.18f),
+                            palette.content.copy(alpha = 0.12f),
                             CircleShape,
                         ),
                     contentAlignment = Alignment.Center,
@@ -722,20 +699,20 @@ private fun DraftPreviewCard(
                     Text(
                         text = name.ifBlank { "Название магазина" },
                         style = MaterialTheme.typography.titleLarge,
-                        color = palette.onColor.copy(alpha = if (name.isBlank()) 0.48f else 1f),
+                        color = palette.content.copy(alpha = if (name.isBlank()) 0.48f else 1f),
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
                         text = "Бонусная карта",
                         style = MaterialTheme.typography.labelMedium,
-                        color = palette.onColor.copy(alpha = 0.62f),
+                        color = palette.content.copy(alpha = 0.62f),
                     )
                 }
                 Row(
                     modifier = Modifier
                         .clip(CircleShape)
-                        .background(palette.onColor.copy(alpha = 0.16f))
+                        .background(palette.content.copy(alpha = 0.16f))
                         .padding(horizontal = 10.dp, vertical = 6.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -746,14 +723,14 @@ private fun DraftPreviewCard(
                             AppIcons.Barcode
                         },
                         contentDescription = null,
-                        tint = palette.onColor,
+                        tint = palette.content,
                         modifier = Modifier.size(14.dp),
                     )
                     Spacer(Modifier.width(5.dp))
                     Text(
                         text = format.shortLabel,
                         style = MaterialTheme.typography.labelSmall,
-                        color = palette.onColor,
+                        color = palette.content,
                     )
                 }
             }

@@ -11,13 +11,24 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -28,29 +39,38 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.smekhnyov.carts.data.CardDraft
 import com.smekhnyov.carts.ui.add.AddCardScreen
 import com.smekhnyov.carts.ui.detail.CardDetailScreen
+import com.smekhnyov.carts.ui.settings.SettingsScreen
 import com.smekhnyov.carts.ui.wallet.WalletScreen
 import kotlinx.coroutines.launch
 
 private const val ROUTE_WALLET = "wallet"
 private const val ROUTE_DETAIL = "detail"
 private const val ROUTE_ADD = "add"
+private const val ROUTE_SETTINGS = "settings"
 
 private sealed interface Route {
     data object Wallet : Route
     data class Detail(val cardId: Long) : Route
     data class Add(val cardId: Long?) : Route
+    data object Settings : Route
 }
 
 @Composable
-fun CartsApp(viewModel: CardsViewModel = viewModel()) {
+fun CartsApp(
+    viewModel: CardsViewModel = viewModel(),
+    settingsViewModel: SettingsViewModel = viewModel(),
+) {
     val cards by viewModel.cards.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+    val settings by settingsViewModel.settings.collectAsStateWithLifecycle()
 
     var routeKey by rememberSaveable { mutableStateOf(ROUTE_WALLET) }
     var selectedCardId by rememberSaveable { mutableLongStateOf(-1L) }
@@ -75,6 +95,7 @@ fun CartsApp(viewModel: CardsViewModel = viewModel()) {
     val route: Route = when (routeKey) {
         ROUTE_DETAIL -> Route.Detail(selectedCardId)
         ROUTE_ADD -> Route.Add(editingCardId.takeIf { it > 0L })
+        ROUTE_SETTINGS -> Route.Settings
         else -> Route.Wallet
     }
 
@@ -165,6 +186,8 @@ fun CartsApp(viewModel: CardsViewModel = viewModel()) {
                             editingCardId = -1L
                             routeKey = ROUTE_ADD
                         },
+                        onOpenSettings = { routeKey = ROUTE_SETTINGS },
+                        onMoveCard = viewModel::moveCard,
                     )
                 }
 
@@ -173,6 +196,10 @@ fun CartsApp(viewModel: CardsViewModel = viewModel()) {
                     if (card == null) {
                         MissingCard(
                             onBack = ::goToWallet,
+                            onAddCard = {
+                                editingCardId = -1L
+                                routeKey = ROUTE_ADD
+                            },
                         )
                     } else {
                         CardDetailScreen(
@@ -221,6 +248,51 @@ fun CartsApp(viewModel: CardsViewModel = viewModel()) {
                         onMessage = ::showMessage,
                     )
                 }
+
+                Route.Settings -> {
+                    SettingsScreen(
+                        settings = settings,
+                        cardCount = cards.size,
+                        onBack = ::goToWallet,
+                        onThemeModeChange = settingsViewModel::setThemeMode,
+                        onDynamicColorChange = settingsViewModel::setUseDynamicColor,
+                        onAccentChange = settingsViewModel::setAccent,
+                        onExport = { uri ->
+                            viewModel.exportCards(uri) { result ->
+                                result.fold(
+                                    onSuccess = { count ->
+                                        showMessage("Экспортировано карт: $count")
+                                    },
+                                    onFailure = {
+                                        showMessage("Не удалось экспортировать данные")
+                                    },
+                                )
+                            }
+                        },
+                        onImport = { uri ->
+                            viewModel.importCards(uri) { result ->
+                                result.fold(
+                                    onSuccess = { count ->
+                                        showMessage("Импортировано карт: $count")
+                                    },
+                                    onFailure = {
+                                        showMessage("Не удалось прочитать резервную копию")
+                                    },
+                                )
+                            }
+                        },
+                        onDeleteAll = {
+                            viewModel.deleteAllCards { success ->
+                                if (success) {
+                                    goToWallet()
+                                    showMessage("Все карты удалены")
+                                } else {
+                                    showMessage("Не удалось удалить карты")
+                                }
+                            }
+                        },
+                    )
+                }
             }
         }
 
@@ -235,10 +307,66 @@ fun CartsApp(viewModel: CardsViewModel = viewModel()) {
 }
 
 @Composable
-private fun MissingCard(onBack: () -> Unit) {
+private fun MissingCard(
+    onBack: () -> Unit,
+    onAddCard: () -> Unit,
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
-    )
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(96.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(40.dp),
+                )
+            }
+            Text(
+                text = "Карта не найдена",
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.padding(top = 24.dp),
+            )
+            Text(
+                text = "Возможно, она была удалена с этого устройства.",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 8.dp),
+            )
+            Column(
+                modifier = Modifier.padding(top = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Button(onClick = onBack) {
+                    Text("Вернуться в кошелёк")
+                }
+                Button(onClick = onAddCard) {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text("Добавить карту")
+                }
+            }
+        }
+    }
 }

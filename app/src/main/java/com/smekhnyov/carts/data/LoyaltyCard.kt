@@ -11,6 +11,7 @@ data class LoyaltyCard(
     val emblemEmoji: String?,
     val emblemImagePath: String?,
     val createdAt: Long,
+    val position: Int = 0,
 ) {
     val shortCode: String
         get() = if (code.length > 4) "•••• ${code.takeLast(4)}" else code

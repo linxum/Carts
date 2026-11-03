@@ -1,6 +1,7 @@
 package com.smekhnyov.carts.ui
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.smekhnyov.carts.data.CardDraft
@@ -32,6 +33,31 @@ class CardsViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             val success = runCatching { repository.delete(card) }.isSuccess
             onResult(success)
+        }
+    }
+
+    fun moveCard(cardId: Long, direction: Int) {
+        viewModelScope.launch {
+            runCatching { repository.move(cardId, direction) }
+        }
+    }
+
+    fun deleteAllCards(onResult: (Boolean) -> Unit = {}) {
+        viewModelScope.launch {
+            val success = runCatching { repository.deleteAll() }.isSuccess
+            onResult(success)
+        }
+    }
+
+    fun exportCards(uri: Uri, onResult: (Result<Int>) -> Unit) {
+        viewModelScope.launch {
+            onResult(runCatching { repository.exportTo(uri) })
+        }
+    }
+
+    fun importCards(uri: Uri, onResult: (Result<Int>) -> Unit) {
+        viewModelScope.launch {
+            onResult(runCatching { repository.importFrom(uri) })
         }
     }
 

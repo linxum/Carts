@@ -51,11 +51,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.smekhnyov.carts.R
 import com.smekhnyov.carts.data.AppAccent
 import com.smekhnyov.carts.data.AppSettings
 import com.smekhnyov.carts.data.ThemeMode
@@ -103,7 +106,7 @@ fun SettingsScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Настройки",
+                        text = stringResource(R.string.settings_title),
                         style = MaterialTheme.typography.headlineSmall,
                     )
                 },
@@ -111,7 +114,7 @@ fun SettingsScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Назад",
+                            contentDescription = stringResource(R.string.action_back),
                         )
                     }
                 },
@@ -129,9 +132,9 @@ fun SettingsScreen(
                 .padding(horizontal = 20.dp)
                 .padding(top = 4.dp, bottom = 28.dp),
         ) {
-            SettingsSection(title = "Оформление") {
+            SettingsSection(title = stringResource(R.string.settings_section_appearance)) {
                 Text(
-                    text = "Тема",
+                    text = stringResource(R.string.settings_theme),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -141,7 +144,7 @@ fun SettingsScreen(
                         FilterChip(
                             selected = settings.themeMode == mode,
                             onClick = { onThemeModeChange(mode) },
-                            label = { Text(mode.label) },
+                            label = { Text(stringResource(mode.labelRes)) },
                             leadingIcon = if (settings.themeMode == mode) {
                                 {
                                     Icon(
@@ -159,15 +162,15 @@ fun SettingsScreen(
 
                 Spacer(Modifier.height(18.dp))
                 SettingSwitchRow(
-                    title = "Цвета обоев",
-                    subtitle = "Использовать палитру Material You с рабочего стола",
+                    title = stringResource(R.string.settings_dynamic_title),
+                    subtitle = stringResource(R.string.settings_dynamic_subtitle),
                     checked = settings.useDynamicColor,
                     onCheckedChange = onDynamicColorChange,
                 )
 
                 Spacer(Modifier.height(14.dp))
                 Text(
-                    text = "Цветовой акцент",
+                    text = stringResource(R.string.settings_accent),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -188,7 +191,7 @@ fun SettingsScreen(
                 if (settings.useDynamicColor) {
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        text = "Акцент берётся из системной палитры.",
+                        text = stringResource(R.string.settings_accent_from_system),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -197,9 +200,13 @@ fun SettingsScreen(
 
             Spacer(Modifier.height(20.dp))
 
-            SettingsSection(title = "Данные") {
+            SettingsSection(title = stringResource(R.string.settings_section_data)) {
                 Text(
-                    text = "В кошельке ${cardCount} " + cardsWord(cardCount) + ".",
+                    text = pluralStringResource(
+                        R.plurals.settings_card_count,
+                        cardCount,
+                        cardCount,
+                    ),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -221,7 +228,7 @@ fun SettingsScreen(
                             modifier = Modifier.size(18.dp),
                         )
                         Spacer(Modifier.width(8.dp))
-                        Text("Экспорт")
+                        Text(stringResource(R.string.settings_export))
                     }
                     OutlinedButton(
                         onClick = {
@@ -235,13 +242,12 @@ fun SettingsScreen(
                             modifier = Modifier.size(18.dp),
                         )
                         Spacer(Modifier.width(8.dp))
-                        Text("Импорт")
+                        Text(stringResource(R.string.settings_import))
                     }
                 }
                 Spacer(Modifier.height(10.dp))
                 Text(
-                    text = "Резервная копия — JSON-файл с картами и эмблемами. " +
-                        "Импорт добавляет карты к текущим.",
+                    text = stringResource(R.string.settings_backup_note),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -249,9 +255,9 @@ fun SettingsScreen(
 
             Spacer(Modifier.height(20.dp))
 
-            SettingsSection(title = "Опасная зона") {
+            SettingsSection(title = stringResource(R.string.settings_section_danger)) {
                 Text(
-                    text = "Удаление всех карт с этого устройства. Сначала сделайте резервную копию.",
+                    text = stringResource(R.string.settings_delete_all_note),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -269,21 +275,21 @@ fun SettingsScreen(
                         modifier = Modifier.size(18.dp),
                     )
                     Spacer(Modifier.width(8.dp))
-                    Text("Удалить все карты")
+                    Text(stringResource(R.string.settings_delete_all))
                 }
             }
 
             Spacer(Modifier.height(20.dp))
 
-            SettingsSection(title = "О приложении") {
+            SettingsSection(title = stringResource(R.string.settings_section_about)) {
                 Text(
-                    text = "Carts — кошелёк бонусных карт",
+                    text = stringResource(R.string.settings_about_title),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "Версия 1.0 · Данные хранятся только на устройстве",
+                    text = stringResource(R.string.settings_about_version),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -295,11 +301,10 @@ fun SettingsScreen(
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
             icon = { Icon(Icons.Filled.Delete, contentDescription = null) },
-            title = { Text("Удалить все карты?") },
+            title = { Text(stringResource(R.string.settings_delete_all_title)) },
             text = {
                 Text(
-                    "Все карты и их эмблемы будут удалены с устройства. " +
-                        "Это действие нельзя отменить.",
+                    stringResource(R.string.settings_delete_all_text),
                 )
             },
             confirmButton = {
@@ -312,12 +317,12 @@ fun SettingsScreen(
                         contentColor = MaterialTheme.colorScheme.error,
                     ),
                 ) {
-                    Text("Удалить все")
+                    Text(stringResource(R.string.settings_delete_all_confirm))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("Отмена")
+                    Text(stringResource(R.string.action_cancel))
                 }
             },
         )
@@ -386,6 +391,7 @@ private fun AccentSwatch(
     onClick: () -> Unit,
 ) {
     val color = Color(accent.lightPrimary)
+    val accentDescription = stringResource(accent.labelRes)
     Box(
         modifier = Modifier
             .size(42.dp)
@@ -407,7 +413,7 @@ private fun AccentSwatch(
             .clickable(enabled = enabled, onClick = onClick)
             .semantics {
                 role = Role.RadioButton
-                contentDescription = accent.label
+                contentDescription = accentDescription
             },
         contentAlignment = Alignment.Center,
     ) {
@@ -419,16 +425,5 @@ private fun AccentSwatch(
                 modifier = Modifier.size(18.dp),
             )
         }
-    }
-}
-
-private fun cardsWord(count: Int): String {
-    val mod100 = count % 100
-    val mod10 = count % 10
-    return when {
-        mod100 in 11..14 -> "карт"
-        mod10 == 1 -> "карта"
-        mod10 in 2..4 -> "карты"
-        else -> "карт"
     }
 }

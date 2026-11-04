@@ -63,6 +63,7 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -70,6 +71,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import com.smekhnyov.carts.R
 import com.smekhnyov.carts.data.LoyaltyCard
 import com.smekhnyov.carts.ui.cards.paletteFor
 import com.smekhnyov.carts.ui.components.AppIcons
@@ -100,7 +102,7 @@ fun WalletScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Кошелёк",
+                        text = stringResource(R.string.wallet_title),
                         style = MaterialTheme.typography.headlineSmall,
                     )
                 },
@@ -109,14 +111,14 @@ fun WalletScreen(
                         IconButton(onClick = { showReorderSheet = true }) {
                             Icon(
                                 imageVector = AppIcons.Sort,
-                                contentDescription = "Изменить порядок карт",
+                                contentDescription = stringResource(R.string.wallet_reorder),
                             )
                         }
                     }
                     IconButton(onClick = onOpenSettings) {
                         Icon(
                             imageVector = Icons.Filled.Settings,
-                            contentDescription = "Настройки",
+                            contentDescription = stringResource(R.string.action_settings),
                         )
                     }
                 },
@@ -135,7 +137,7 @@ fun WalletScreen(
                         modifier = Modifier.size(22.dp),
                     )
                 },
-                text = { Text("Добавить карту") },
+                text = { Text(stringResource(R.string.wallet_add_card)) },
             )
         },
     ) { innerPadding ->
@@ -207,13 +209,13 @@ private fun EmptyWallet(onAddCard: () -> Unit) {
         }
         Spacer(Modifier.height(28.dp))
         Text(
-            text = "Пока ни одной карты",
+            text = stringResource(R.string.wallet_empty_title),
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onBackground,
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            text = "Добавьте бонусную карту, чтобы её код всегда был под рукой.",
+            text = stringResource(R.string.wallet_empty_text),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
@@ -227,7 +229,7 @@ private fun EmptyWallet(onAddCard: () -> Unit) {
                 modifier = Modifier.size(20.dp),
             )
             Spacer(Modifier.width(8.dp))
-            Text("Добавить карту")
+            Text(stringResource(R.string.wallet_add_card))
         }
     }
 }
@@ -323,7 +325,7 @@ private fun WalletCard(
                 interactionSource = interaction,
                 indication = ripple(color = palette.content.copy(alpha = 0.12f)),
                 role = Role.Button,
-                onLongClickLabel = "Изменить порядок карт",
+                onLongClickLabel = stringResource(R.string.wallet_reorder),
                 onLongClick = onLongClick,
                 onClick = onClick,
             ),
@@ -356,7 +358,7 @@ private fun WalletCard(
                             overflow = TextOverflow.Ellipsis,
                         )
                         Text(
-                            text = card.format.label,
+                            text = stringResource(card.format.labelRes),
                             style = MaterialTheme.typography.labelSmall,
                             color = palette.content.copy(alpha = 0.68f),
                             maxLines = 1,
@@ -375,7 +377,7 @@ private fun WalletCard(
                 Row(verticalAlignment = Alignment.Bottom) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "КОД",
+                            text = stringResource(R.string.wallet_code_label),
                             style = MaterialTheme.typography.labelSmall,
                             color = palette.content.copy(alpha = 0.56f),
                             letterSpacing = 1.6.sp,
@@ -434,13 +436,13 @@ private fun ReorderSheet(
                 .padding(bottom = 24.dp),
         ) {
             Text(
-                text = "Порядок карт",
+                text = stringResource(R.string.wallet_reorder_title),
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onSurface,
             )
             Spacer(Modifier.height(6.dp))
             Text(
-                text = "Первая карта находится выше всех в стопке.",
+                text = stringResource(R.string.wallet_reorder_hint),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -472,7 +474,7 @@ private fun ReorderSheet(
                                 overflow = TextOverflow.Ellipsis,
                             )
                             Text(
-                                text = card.format.label,
+                                text = stringResource(card.format.labelRes),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -483,7 +485,7 @@ private fun ReorderSheet(
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.KeyboardArrowUp,
-                                contentDescription = "Переместить выше",
+                                contentDescription = stringResource(R.string.wallet_move_up),
                             )
                         }
                         Spacer(Modifier.width(4.dp))
@@ -493,7 +495,7 @@ private fun ReorderSheet(
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.KeyboardArrowDown,
-                                contentDescription = "Переместить ниже",
+                                contentDescription = stringResource(R.string.wallet_move_down),
                             )
                         }
                     }
@@ -508,7 +510,7 @@ private fun ReorderSheet(
                 onClick = onDismiss,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("Готово")
+                Text(stringResource(R.string.action_done))
             }
         }
     }

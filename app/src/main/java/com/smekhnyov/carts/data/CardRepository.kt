@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.util.Base64
+import com.smekhnyov.carts.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -49,7 +50,7 @@ class CardRepository(context: Context) {
 
         if (draft.newEmblemUri != null) {
             imagePath = importEmblem(draft.newEmblemUri)
-                ?: throw IllegalStateException("Не удалось прочитать изображение эмблемы")
+                ?: throw IllegalStateException(appContext.getString(R.string.error_read_emblem))
         }
 
         val cardId = if (oldCard == null) {
@@ -123,7 +124,7 @@ class CardRepository(context: Context) {
 
         appContext.contentResolver.openOutputStream(uri)?.use { output ->
             output.write(root.toString(2).toByteArray(Charsets.UTF_8))
-        } ?: throw IllegalStateException("Не удалось открыть файл для записи")
+        } ?: throw IllegalStateException(appContext.getString(R.string.error_open_output))
 
         cards.size
     }
@@ -136,11 +137,11 @@ class CardRepository(context: Context) {
         val text = appContext.contentResolver.openInputStream(uri)
             ?.bufferedReader(Charsets.UTF_8)
             ?.use { it.readText() }
-            ?: throw IllegalStateException("Не удалось прочитать файл")
+            ?: throw IllegalStateException(appContext.getString(R.string.error_read_file))
 
         val root = JSONObject(text)
         val cardsJson = root.optJSONArray("cards")
-            ?: throw IllegalArgumentException("В файле нет данных карт")
+            ?: throw IllegalArgumentException(appContext.getString(R.string.error_no_card_data))
 
         var imported = 0
         for (index in 0 until cardsJson.length()) {

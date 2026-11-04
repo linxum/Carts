@@ -1,3 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Кошелёк</string>
+    <string name="app_name">Carts</string>
+
+    <!-- Общие действия -->
+    <string name="action_back">Back</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_close">Close</string>
+    <string name="action_clear">Clear</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_done">Done</string>
+    <string name="action_more">More actions</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- Кошелёк -->
+    <string name="wallet_title">Wallet</string>
+    <string name="wallet_add_card">Add card</string>
+    <string name="wallet_reorder">Reorder cards</string>
+    <string name="wallet_empty_title">No cards yet</string>
+    <string name="wallet_empty_text">Add a loyalty card so its code is always at hand.</string>
+    <string name="wallet_code_label">CODE</string>
+    <string name="wallet_reorder_title">Card order</string>
+    <string name="wallet_reorder_hint">The first card is on top of the stack.</string>
+    <string name="wallet_move_up">Move up</string>
+    <string name="wallet_move_down">Move down</string>
+
+    <!-- Экран карты -->
+    <string name="detail_copy_code">Copy code</string>
+    <string name="detail_delete_card">Delete card</string>
+    <string name="detail_refresh_code">Refresh code</string>
+    <string name="detail_code_hint">Show the code at the checkout. It is generated from the card data each time.</string>
+    <string name="detail_storage_note">Data is stored only on this device</string>
+    <string name="detail_delete_title">Delete card?</string>
+    <string name="detail_delete_text">The card “%1$s” and its emblem will be deleted from this device. This action cannot be undone.</string>
+    <string name="message_code_copied">Code copied</string>
+
+    <!-- Добавление и редактирование карты -->
+    <string name="add_title_new">New card</string>
+    <string name="add_title_edit">Edit card</string>
+    <string name="add_subtitle_new">Add a card to your wallet</string>
+    <string name="add_subtitle_edit">Update the card details</string>
+    <string name="add_section_store">Store</string>
+    <string name="add_store_name_label">Store name</string>
+    <string name="add_store_name_placeholder">For example, “Walmart”</string>
+    <string name="add_section_code">Card code</string>
+    <string name="add_code_label">Number or code data</string>
+    <string name="add_code_format">Code format</string>
+    <string name="add_scan_code">Scan code with camera</string>
+    <string name="add_section_appearance">Appearance</string>
+    <string name="add_card_color">Card color</string>
+    <string name="add_card_color_description">Card color %1$d</string>
+    <string name="add_code_note">The code is stored as text and drawn anew each time. No photo of the code is saved.</string>
+    <string name="add_save_changes">Save changes</string>
+    <string name="add_add_to_wallet">Add to wallet</string>
+    <string name="add_preview_store_name">Store name</string>
+    <string name="add_preview_loyalty_card">Loyalty card</string>
+    <string name="add_preview_empty_code">The generated code will appear here</string>
+    <string name="add_emblem_title">Card emblem</string>
+    <string name="add_emblem_text">Pick an emoji or upload a store logo from the gallery.</string>
+    <string name="add_emblem_select">Choose card emblem</string>
+    <string name="add_emblem_photo">Photo from gallery</string>
+    <string name="add_emblem_remove">Remove</string>
+    <string name="error_store_name_required">Enter the store name</string>
+    <string name="error_code_required">Enter or scan the card code</string>
+    <string name="error_code_format">The code does not match the %1$s format. Check the data.</string>
+    <string name="error_save_card">Could not save the card. Try again.</string>
+    <string name="message_code_scanned">Code recognized: %1$s</string>
+
+    <!-- Сканер -->
+    <string name="scanner_title">Scanning code</string>
+    <string name="scanner_close">Close scanner</string>
+    <string name="scanner_flash">Flash</string>
+    <string name="scanner_hint">Place the code inside the frame</string>
+    <string name="scanner_formats">QR, Data Matrix, Code 128, EAN and other barcodes</string>
+    <string name="scanner_permission_title">Camera access required</string>
+    <string name="scanner_permission_text">The camera is used only to recognize the card code. The image is not saved or sent to the network.</string>
+    <string name="scanner_permission_denied_text">Without the camera, the code cannot be recognized. Enable access in the app settings.</string>
+    <string name="scanner_permission_grant">Allow camera</string>
+    <string name="scanner_open_settings">Open settings</string>
+
+    <!-- Настройки -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_section_appearance">Appearance</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_theme_system">System</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_dynamic_title">Wallpaper colors</string>
+    <string name="settings_dynamic_subtitle">Use the Material You palette from the home screen</string>
+    <string name="settings_accent">Accent color</string>
+    <string name="settings_accent_from_system">The accent comes from the system palette.</string>
+    <string name="settings_section_data">Data</string>
+    <plurals name="settings_card_count">
+        <item quantity="one">%1$d card in your wallet.</item>
+        <item quantity="other">%1$d cards in your wallet.</item>
+    </plurals>
+    <string name="settings_export">Export</string>
+    <string name="settings_import">Import</string>
+    <string name="settings_backup_note">The backup is a JSON file with cards and emblems. Import adds cards to the existing ones.</string>
+    <string name="settings_section_danger">Danger zone</string>
+    <string name="settings_delete_all_note">Delete all cards from this device. Make a backup first.</string>
+    <string name="settings_delete_all">Delete all cards</string>
+    <string name="settings_section_about">About</string>
+    <string name="settings_about_title">Carts — loyalty card wallet</string>
+    <string name="settings_about_version">Version 1.0 · Data is stored only on the device</string>
+    <string name="settings_delete_all_title">Delete all cards?</string>
+    <string name="settings_delete_all_text">All cards and their emblems will be deleted from this device. This action cannot be undone.</string>
+    <string name="settings_delete_all_confirm">Delete all</string>
+
+    <!-- Акценты -->
+    <string name="accent_violet">Violet</string>
+    <string name="accent_blue">Blue</string>
+    <string name="accent_green">Green</string>
+    <string name="accent_orange">Orange</string>
+    <string name="accent_pink">Pink</string>
+    <string name="accent_teal">Teal</string>
+
+    <!-- Сообщения -->
+    <string name="message_card_deleted">Card deleted</string>
+    <string name="error_delete_card">Could not delete the card</string>
+    <string name="message_card_added">Card added to wallet</string>
+    <string name="message_changes_saved">Changes saved</string>
+    <string name="message_exported">Cards exported: %1$d</string>
+    <string name="error_export">Could not export the data</string>
+    <string name="message_imported">Cards imported: %1$d</string>
+    <string name="error_import">Could not read the backup</string>
+    <string name="message_all_deleted">All cards deleted</string>
+    <string name="error_delete_all">Could not delete the cards</string>
+    <string name="missing_card_title">Card not found</string>
+    <string name="missing_card_text">It may have been deleted from this device.</string>
+    <string name="missing_card_back">Back to wallet</string>
+
+    <!-- Штрихкод -->
+    <string name="barcode_error">Could not build the code.\nCheck the data and format.</string>
+
+    <!-- Ошибки хранилища -->
+    <string name="error_read_emblem">Could not read the emblem image</string>
+    <string name="error_open_output">Could not open the file for writing</string>
+    <string name="error_read_file">Could not read the file</string>
+    <string name="error_no_card_data">No card data in the file</string>
+
+    <!-- Форматы кодов -->
+    <string name="format_qr_code">QR code</string>
+    <string name="format_data_matrix" translatable="false">Data Matrix</string>
+    <string name="format_aztec" translatable="false">Aztec</string>
+    <string name="format_pdf417" translatable="false">PDF417</string>
+    <string name="format_code_128" translatable="false">Code 128</string>
+    <string name="format_code_39" translatable="false">Code 39</string>
+    <string name="format_code_93" translatable="false">Code 93</string>
+    <string name="format_ean_13" translatable="false">EAN-13</string>
+    <string name="format_ean_8" translatable="false">EAN-8</string>
+    <string name="format_upc_a" translatable="false">UPC-A</string>
+    <string name="format_upc_e" translatable="false">UPC-E</string>
+    <string name="format_itf" translatable="false">ITF</string>
+    <string name="format_codabar" translatable="false">Codabar</string>
+
+    <!-- Подсказки для форматов -->
+    <string name="placeholder_qr">Text or link</string>
+    <string name="placeholder_code_data">Code data</string>
+    <string name="placeholder_code_128" translatable="false">1234567890123</string>
+    <string name="placeholder_code_39" translatable="false">ABC-1234</string>
+    <string name="placeholder_code_93" translatable="false">ABC-1234</string>
+    <string name="placeholder_ean_13" translatable="false">4600000000000</string>
+    <string name="placeholder_ean_8" translatable="false">46000000</string>
+    <string name="placeholder_upc_a" translatable="false">012345678905</string>
+    <string name="placeholder_upc_e" translatable="false">01234565</string>
+    <string name="placeholder_itf" translatable="false">12345678</string>
+    <string name="placeholder_codabar" translatable="false">A123456A</string>
 </resources>

@@ -40,10 +40,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.smekhnyov.carts.R
 import com.smekhnyov.carts.data.CardDraft
 import com.smekhnyov.carts.ui.add.AddCardScreen
 import com.smekhnyov.carts.ui.detail.CardDetailScreen
@@ -71,6 +74,7 @@ fun CartsApp(
     val cards by viewModel.cards.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     val settings by settingsViewModel.settings.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     var routeKey by rememberSaveable { mutableStateOf(ROUTE_WALLET) }
     var selectedCardId by rememberSaveable { mutableLongStateOf(-1L) }
@@ -213,9 +217,9 @@ fun CartsApp(
                                 viewModel.deleteCard(card) { success ->
                                     if (success) {
                                         goToWallet()
-                                        showMessage("Карта удалена")
+                                        showMessage(context.getString(R.string.message_card_deleted))
                                     } else {
-                                        showMessage("Не удалось удалить карту")
+                                        showMessage(context.getString(R.string.error_delete_card))
                                     }
                                 }
                             },
@@ -236,9 +240,9 @@ fun CartsApp(
                                 onResult(success)
                                 if (success) {
                                     val message = if (draft.id == null) {
-                                        "Карта добавлена в кошелёк"
+                                        context.getString(R.string.message_card_added)
                                     } else {
-                                        "Изменения сохранены"
+                                        context.getString(R.string.message_changes_saved)
                                     }
                                     goToWallet()
                                     showMessage(message)
@@ -261,10 +265,12 @@ fun CartsApp(
                             viewModel.exportCards(uri) { result ->
                                 result.fold(
                                     onSuccess = { count ->
-                                        showMessage("Экспортировано карт: $count")
+                                        showMessage(
+                                            context.getString(R.string.message_exported, count),
+                                        )
                                     },
                                     onFailure = {
-                                        showMessage("Не удалось экспортировать данные")
+                                        showMessage(context.getString(R.string.error_export))
                                     },
                                 )
                             }
@@ -273,10 +279,12 @@ fun CartsApp(
                             viewModel.importCards(uri) { result ->
                                 result.fold(
                                     onSuccess = { count ->
-                                        showMessage("Импортировано карт: $count")
+                                        showMessage(
+                                            context.getString(R.string.message_imported, count),
+                                        )
                                     },
                                     onFailure = {
-                                        showMessage("Не удалось прочитать резервную копию")
+                                        showMessage(context.getString(R.string.error_import))
                                     },
                                 )
                             }
@@ -285,9 +293,9 @@ fun CartsApp(
                             viewModel.deleteAllCards { success ->
                                 if (success) {
                                     goToWallet()
-                                    showMessage("Все карты удалены")
+                                    showMessage(context.getString(R.string.message_all_deleted))
                                 } else {
-                                    showMessage("Не удалось удалить карты")
+                                    showMessage(context.getString(R.string.error_delete_all))
                                 }
                             }
                         },
@@ -337,13 +345,13 @@ private fun MissingCard(
                 )
             }
             Text(
-                text = "Карта не найдена",
+                text = stringResource(R.string.missing_card_title),
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(top = 24.dp),
             )
             Text(
-                text = "Возможно, она была удалена с этого устройства.",
+                text = stringResource(R.string.missing_card_text),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -355,7 +363,7 @@ private fun MissingCard(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 Button(onClick = onBack) {
-                    Text("Вернуться в кошелёк")
+                    Text(stringResource(R.string.missing_card_back))
                 }
                 Button(onClick = onAddCard) {
                     Icon(
@@ -364,7 +372,7 @@ private fun MissingCard(
                         modifier = Modifier.size(20.dp),
                     )
                     Spacer(Modifier.width(8.dp))
-                    Text("Добавить карту")
+                    Text(stringResource(R.string.wallet_add_card))
                 }
             }
         }

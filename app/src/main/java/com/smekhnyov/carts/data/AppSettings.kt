@@ -1,10 +1,13 @@
 package com.smekhnyov.carts.data
 
+import androidx.annotation.StringRes
+import com.smekhnyov.carts.R
+
 /** Режим оформления приложения. */
-enum class ThemeMode(val label: String) {
-    SYSTEM("Системная"),
-    LIGHT("Светлая"),
-    DARK("Тёмная"),
+enum class ThemeMode(@param:StringRes val labelRes: Int) {
+    SYSTEM(R.string.settings_theme_system),
+    LIGHT(R.string.settings_theme_light),
+    DARK(R.string.settings_theme_dark),
     ;
 
     companion object {
@@ -18,7 +21,7 @@ enum class ThemeMode(val label: String) {
  * не зависели от Compose и могли читаться до создания темы.
  */
 enum class AppAccent(
-    val label: String,
+    @param:StringRes val labelRes: Int,
     val lightPrimary: Long,
     val lightOnPrimary: Long,
     val lightContainer: Long,
@@ -29,7 +32,7 @@ enum class AppAccent(
     val darkOnContainer: Long,
 ) {
     VIOLET(
-        label = "Фиолетовый",
+        labelRes = R.string.accent_violet,
         lightPrimary = 0xFF6A3DE8,
         lightOnPrimary = 0xFFFFFFFF,
         lightContainer = 0xFFE9DDFF,
@@ -40,7 +43,7 @@ enum class AppAccent(
         darkOnContainer = 0xFFEADDFF,
     ),
     BLUE(
-        label = "Синий",
+        labelRes = R.string.accent_blue,
         lightPrimary = 0xFF0B57D0,
         lightOnPrimary = 0xFFFFFFFF,
         lightContainer = 0xFFD3E3FD,
@@ -51,7 +54,7 @@ enum class AppAccent(
         darkOnContainer = 0xFFD3E3FD,
     ),
     GREEN(
-        label = "Зелёный",
+        labelRes = R.string.accent_green,
         lightPrimary = 0xFF146C2E,
         lightOnPrimary = 0xFFFFFFFF,
         lightContainer = 0xFFC4EED0,
@@ -62,7 +65,7 @@ enum class AppAccent(
         darkOnContainer = 0xFFC4EED0,
     ),
     ORANGE(
-        label = "Оранжевый",
+        labelRes = R.string.accent_orange,
         lightPrimary = 0xFF8B5000,
         lightOnPrimary = 0xFFFFFFFF,
         lightContainer = 0xFFFFDCC0,
@@ -73,7 +76,7 @@ enum class AppAccent(
         darkOnContainer = 0xFFFFDCC0,
     ),
     PINK(
-        label = "Розовый",
+        labelRes = R.string.accent_pink,
         lightPrimary = 0xFF9C3F66,
         lightOnPrimary = 0xFFFFFFFF,
         lightContainer = 0xFFFFD9E2,
@@ -84,7 +87,7 @@ enum class AppAccent(
         darkOnContainer = 0xFFFFD9E2,
     ),
     TEAL(
-        label = "Бирюзовый",
+        labelRes = R.string.accent_teal,
         lightPrimary = 0xFF006A6A,
         lightOnPrimary = 0xFFFFFFFF,
         lightContainer = 0xFF9CF1EF,

@@ -57,7 +57,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -65,6 +67,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.smekhnyov.carts.R
 import com.smekhnyov.carts.data.CardFormat
 import com.smekhnyov.carts.data.LoyaltyCard
 import com.smekhnyov.carts.ui.cards.paletteFor
@@ -88,6 +91,7 @@ fun CardDetailScreen(
     var menuExpanded by remember { mutableStateOf(false) }
     var generation by remember(card.id) { mutableIntStateOf(0) }
     val clipboard = LocalClipboardManager.current
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val rotation = remember { Animatable(0f) }
 
@@ -122,7 +126,7 @@ fun CardDetailScreen(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Назад",
+                        contentDescription = stringResource(R.string.action_back),
                     )
                 }
                 Spacer(Modifier.weight(1f))
@@ -136,7 +140,7 @@ fun CardDetailScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.MoreVert,
-                            contentDescription = "Действия",
+                            contentDescription = stringResource(R.string.action_more),
                         )
                     }
                     DropdownMenu(
@@ -144,7 +148,7 @@ fun CardDetailScreen(
                         onDismissRequest = { menuExpanded = false },
                     ) {
                         DropdownMenuItem(
-                            text = { Text("Изменить") },
+                            text = { Text(stringResource(R.string.action_edit)) },
                             leadingIcon = {
                                 Icon(Icons.Filled.Edit, contentDescription = null)
                             },
@@ -154,19 +158,19 @@ fun CardDetailScreen(
                             },
                         )
                         DropdownMenuItem(
-                            text = { Text("Копировать код") },
+                            text = { Text(stringResource(R.string.detail_copy_code)) },
                             leadingIcon = {
                                 Icon(AppIcons.Copy, contentDescription = null)
                             },
                             onClick = {
                                 menuExpanded = false
                                 clipboard.setText(AnnotatedString(card.code))
-                                onMessage("Код скопирован")
+                                onMessage(context.getString(R.string.message_code_copied))
                             },
                         )
                         HorizontalDivider()
                         DropdownMenuItem(
-                            text = { Text("Удалить карту") },
+                            text = { Text(stringResource(R.string.detail_delete_card)) },
                             leadingIcon = {
                                 Icon(
                                     Icons.Filled.Delete,
@@ -221,7 +225,7 @@ fun CardDetailScreen(
                             )
                             Spacer(Modifier.width(6.dp))
                             Text(
-                                text = "${card.format.label} · генерируется заново",
+                                text = stringResource(card.format.labelRes),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = palette.content.copy(alpha = 0.68f),
                             )
@@ -246,7 +250,7 @@ fun CardDetailScreen(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
-                                text = card.format.label.uppercase(),
+                                text = stringResource(card.format.labelRes).uppercase(),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 letterSpacing = 1.4.sp,
@@ -268,7 +272,7 @@ fun CardDetailScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Filled.Refresh,
-                                    contentDescription = "Обновить код",
+                                    contentDescription = stringResource(R.string.detail_refresh_code),
                                     modifier = Modifier.size(20.dp),
                                 )
                             }
@@ -318,12 +322,12 @@ fun CardDetailScreen(
                             IconButton(
                                 onClick = {
                                     clipboard.setText(AnnotatedString(card.code))
-                                    onMessage("Код скопирован")
+                                    onMessage(context.getString(R.string.message_code_copied))
                                 },
                             ) {
                                 Icon(
                                     imageVector = AppIcons.Copy,
-                                    contentDescription = "Копировать код",
+                                    contentDescription = stringResource(R.string.detail_copy_code),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
@@ -331,7 +335,7 @@ fun CardDetailScreen(
 
                         Spacer(Modifier.height(12.dp))
                         Text(
-                            text = "Покажите код на кассе. Он каждый раз создаётся из данных карты.",
+                            text = stringResource(R.string.detail_code_hint),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center,
@@ -359,7 +363,7 @@ fun CardDetailScreen(
                             modifier = Modifier.size(18.dp),
                         )
                         Spacer(Modifier.width(8.dp))
-                        Text("Изменить")
+                        Text(stringResource(R.string.action_edit))
                     }
                     TextButton(
                         onClick = { showDeleteDialog = true },
@@ -374,13 +378,13 @@ fun CardDetailScreen(
                             modifier = Modifier.size(18.dp),
                         )
                         Spacer(Modifier.width(8.dp))
-                        Text("Удалить")
+                        Text(stringResource(R.string.action_delete))
                     }
                 }
 
                 Spacer(Modifier.height(18.dp))
                 Text(
-                    text = "Данные хранятся только на этом устройстве",
+                    text = stringResource(R.string.detail_storage_note),
                     style = MaterialTheme.typography.labelSmall,
                     color = palette.content.copy(alpha = 0.46f),
                     modifier = Modifier.align(Alignment.CenterHorizontally),
@@ -393,11 +397,10 @@ fun CardDetailScreen(
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
             icon = { Icon(Icons.Filled.Delete, contentDescription = null) },
-            title = { Text("Удалить карту?") },
+            title = { Text(stringResource(R.string.detail_delete_title)) },
             text = {
                 Text(
-                    "Карта «${card.name}» и её эмблема будут удалены с устройства. " +
-                        "Это действие нельзя отменить.",
+                    stringResource(R.string.detail_delete_text, card.name),
                 )
             },
             confirmButton = {
@@ -410,12 +413,12 @@ fun CardDetailScreen(
                         contentColor = MaterialTheme.colorScheme.error,
                     ),
                 ) {
-                    Text("Удалить")
+                    Text(stringResource(R.string.action_delete))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("Отмена")
+                    Text(stringResource(R.string.action_cancel))
                 }
             },
         )

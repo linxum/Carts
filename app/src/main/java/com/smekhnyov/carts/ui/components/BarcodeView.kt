@@ -18,8 +18,10 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.smekhnyov.carts.R
 import com.smekhnyov.carts.barcode.BarcodeRenderer
 import com.smekhnyov.carts.data.CardFormat
 import kotlinx.coroutines.Dispatchers
@@ -76,7 +78,7 @@ fun BarcodeView(
             is BarcodeState.Ready -> {
                 Image(
                     bitmap = current.bitmap,
-                    contentDescription = "Код ${format.label}",
+                    contentDescription = stringResource(format.labelRes),
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Fit,
                     filterQuality = FilterQuality.None,
@@ -85,7 +87,7 @@ fun BarcodeView(
 
             BarcodeState.Error -> {
                 Text(
-                    text = "Не удалось построить код.\nПроверьте данные и формат.",
+                    text = stringResource(R.string.barcode_error),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error,
                     textAlign = TextAlign.Center,

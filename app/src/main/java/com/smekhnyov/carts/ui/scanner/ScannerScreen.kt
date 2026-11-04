@@ -78,6 +78,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -86,6 +87,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.smekhnyov.carts.R
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
@@ -253,7 +255,7 @@ private fun CameraScanner(
         ) {
             ScannerIconButton(
                 onClick = onClose,
-                contentDescription = "Закрыть сканер",
+                contentDescription = stringResource(R.string.scanner_close),
             ) {
                 Icon(Icons.Filled.Close, contentDescription = null)
             }
@@ -265,7 +267,7 @@ private fun CameraScanner(
                 shape = RoundedCornerShape(50),
             ) {
                 Text(
-                    text = "Сканирование кода",
+                    text = stringResource(R.string.scanner_title),
                     style = MaterialTheme.typography.labelLarge,
                     color = Color.White,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 9.dp),
@@ -278,7 +280,7 @@ private fun CameraScanner(
                 onClick = {
                     if (hasFlash) torchEnabled = !torchEnabled
                 },
-                contentDescription = "Вспышка",
+                contentDescription = stringResource(R.string.scanner_flash),
                 active = torchEnabled,
             ) {
                 Icon(AppIcons.Flashlight, contentDescription = null)
@@ -293,14 +295,14 @@ private fun CameraScanner(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = "Поместите код в рамку",
+                text = stringResource(R.string.scanner_hint),
                 style = MaterialTheme.typography.titleLarge,
                 color = Color.White,
                 textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(6.dp))
             Text(
-                text = "QR, Data Matrix, Code 128, EAN и другие штрихкоды",
+                text = stringResource(R.string.scanner_formats),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.White.copy(alpha = 0.68f),
                 textAlign = TextAlign.Center,
@@ -452,7 +454,7 @@ private fun CameraPermission(
             }
             Spacer(Modifier.height(24.dp))
             Text(
-                text = "Нужен доступ к камере",
+                text = stringResource(R.string.scanner_permission_title),
                 style = MaterialTheme.typography.headlineSmall,
                 color = Color.White,
                 textAlign = TextAlign.Center,
@@ -460,9 +462,9 @@ private fun CameraPermission(
             Spacer(Modifier.height(10.dp))
             Text(
                 text = if (wasAsked) {
-                    "Без камеры не получится распознать код. Включите доступ в настройках приложения."
+                    stringResource(R.string.scanner_permission_denied_text)
                 } else {
-                    "Камера используется только для распознавания кода карты. Изображение не сохраняется и не отправляется в сеть."
+                    stringResource(R.string.scanner_permission_text)
                 },
                 style = MaterialTheme.typography.bodyLarge,
                 color = Color.White.copy(alpha = 0.72f),
@@ -476,15 +478,15 @@ private fun CameraPermission(
                     contentColor = Color.Black,
                 ),
             ) {
-                Text("Разрешить камеру")
+                Text(stringResource(R.string.scanner_permission_grant))
             }
             Spacer(Modifier.height(4.dp))
             TextButton(onClick = onOpenSettings) {
-                Text("Открыть настройки", color = Color.White.copy(alpha = 0.78f))
+                Text(stringResource(R.string.scanner_open_settings), color = Color.White.copy(alpha = 0.78f))
             }
             Spacer(Modifier.height(12.dp))
             TextButton(onClick = onClose) {
-                Text("Отмена", color = Color.White.copy(alpha = 0.55f))
+                Text(stringResource(R.string.action_cancel), color = Color.White.copy(alpha = 0.55f))
             }
         }
     }

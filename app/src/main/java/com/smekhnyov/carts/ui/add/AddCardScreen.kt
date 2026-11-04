@@ -80,6 +80,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
@@ -90,6 +91,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.smekhnyov.carts.R
 import com.smekhnyov.carts.barcode.BarcodeRenderer
 import com.smekhnyov.carts.data.CardDraft
 import com.smekhnyov.carts.data.CardFormat
@@ -176,12 +178,12 @@ fun AddCardScreen(
         val trimmedCode = code.trim()
         when {
             trimmedName.isEmpty() -> {
-                errorMessage = "Введите название магазина"
+                errorMessage = context.getString(R.string.error_store_name_required)
                 return
             }
 
             trimmedCode.isEmpty() -> {
-                errorMessage = "Введите или отсканируйте код карты"
+                errorMessage = context.getString(R.string.error_code_required)
                 return
             }
         }
@@ -193,7 +195,10 @@ fun AddCardScreen(
             }
             if (!valid) {
                 saving = false
-                errorMessage = "Код не подходит для формата ${format.label}. Проверьте данные."
+                errorMessage = context.getString(
+                    R.string.error_code_format,
+                    context.getString(format.labelRes),
+                )
                 return@launch
             }
             val draft = CardDraft(
@@ -210,7 +215,7 @@ fun AddCardScreen(
             onSave(draft) { success ->
                 saving = false
                 if (!success) {
-                    errorMessage = "Не удалось сохранить карту. Попробуйте ещё раз."
+                    errorMessage = context.getString(R.string.error_save_card)
                 }
             }
         }
@@ -246,20 +251,24 @@ fun AddCardScreen(
                         contentColor = MaterialTheme.colorScheme.onSurface,
                     ),
                 ) {
-                    Icon(Icons.Filled.Close, contentDescription = "Закрыть")
+                    Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.action_close))
                 }
                 Spacer(Modifier.width(14.dp))
                 Column {
                     Text(
-                        text = if (isEditing) "Изменить карту" else "Новая карта",
+                        text = if (isEditing) {
+                            stringResource(R.string.add_title_edit)
+                        } else {
+                            stringResource(R.string.add_title_new)
+                        },
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.onBackground,
                     )
                     Text(
                         text = if (isEditing) {
-                            "Обновите данные карты"
+                            stringResource(R.string.add_subtitle_edit)
                         } else {
-                            "Добавьте карту в свой кошелёк"
+                            stringResource(R.string.add_subtitle_new)
                         },
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -281,7 +290,7 @@ fun AddCardScreen(
 
             Spacer(Modifier.height(20.dp))
 
-            FormSection(title = "Магазин") {
+            FormSection(title = stringResource(R.string.add_section_store)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     EmblemSelector(
                         emoji = emoji,
@@ -297,8 +306,8 @@ fun AddCardScreen(
                             errorMessage = null
                         },
                         modifier = Modifier.weight(1f),
-                        label = { Text("Название магазина") },
-                        placeholder = { Text("Например, «Пятёрочка»") },
+                        label = { Text(stringResource(R.string.add_store_name_label)) },
+                        placeholder = { Text(stringResource(R.string.add_store_name_placeholder)) },
                         singleLine = true,
                         shape = RoundedCornerShape(20.dp),
                         colors = appTextFieldColors(),
@@ -308,7 +317,7 @@ fun AddCardScreen(
 
             Spacer(Modifier.height(14.dp))
 
-            FormSection(title = "Код карты") {
+            FormSection(title = stringResource(R.string.add_section_code)) {
                 OutlinedTextField(
                     value = code,
                     onValueChange = {
@@ -316,8 +325,8 @@ fun AddCardScreen(
                         errorMessage = null
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Номер или данные кода") },
-                    placeholder = { Text(format.placeholder.ifBlank { "Введите код" }) },
+                    label = { Text(stringResource(R.string.add_code_label)) },
+                    placeholder = { Text(stringResource(format.placeholderRes)) },
                     minLines = 1,
                     maxLines = 3,
                     shape = RoundedCornerShape(20.dp),
@@ -334,7 +343,7 @@ fun AddCardScreen(
                                     errorMessage = null
                                 },
                             ) {
-                                Icon(Icons.Filled.Clear, contentDescription = "Очистить")
+                                Icon(Icons.Filled.Clear, contentDescription = stringResource(R.string.action_clear))
                             }
                         }
                     },
@@ -344,7 +353,7 @@ fun AddCardScreen(
                 Spacer(Modifier.height(14.dp))
 
                 Text(
-                    text = "Формат кода",
+                    text = stringResource(R.string.add_code_format),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -395,15 +404,15 @@ fun AddCardScreen(
                         modifier = Modifier.size(20.dp),
                     )
                     Spacer(Modifier.width(9.dp))
-                    Text("Сканировать код камерой")
+                    Text(stringResource(R.string.add_scan_code))
                 }
             }
 
             Spacer(Modifier.height(14.dp))
 
-            FormSection(title = "Оформление") {
+            FormSection(title = stringResource(R.string.add_section_appearance)) {
                 Text(
-                    text = "Цвет карты",
+                    text = stringResource(R.string.add_card_color),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -412,6 +421,10 @@ fun AddCardScreen(
                     items(CardPaletteCount) { index ->
                         val palette = paletteFor(index)
                         val selected = paletteIndex == index
+                        val colorDescription = stringResource(
+                            R.string.add_card_color_description,
+                            index + 1,
+                        )
                         Box(
                             modifier = Modifier
                                 .size(42.dp)
@@ -435,7 +448,7 @@ fun AddCardScreen(
                                 }
                                 .semantics {
                                     role = Role.RadioButton
-                                    contentDescription = "Цвет карты ${index + 1}"
+                                    contentDescription = colorDescription
                                 },
                             contentAlignment = Alignment.Center,
                         ) {
@@ -471,8 +484,7 @@ fun AddCardScreen(
 
             Spacer(Modifier.height(16.dp))
             Text(
-                text = "Код хранится как текст и каждый раз рисуется заново. " +
-                    "Фотография кода не сохраняется.",
+                text = stringResource(R.string.add_code_note),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -511,7 +523,11 @@ fun AddCardScreen(
                         )
                     } else {
                         Text(
-                            text = if (isEditing) "Сохранить изменения" else "Добавить в кошелёк",
+                            text = if (isEditing) {
+                                stringResource(R.string.add_save_changes)
+                            } else {
+                                stringResource(R.string.add_add_to_wallet)
+                            },
                             style = MaterialTheme.typography.titleMedium,
                         )
                     }
@@ -553,7 +569,12 @@ fun AddCardScreen(
                     formatName = scannedFormat.name
                     scannerOpen = false
                     errorMessage = null
-                    onMessage("Код распознан: ${scannedFormat.label}")
+                    onMessage(
+                        context.getString(
+                            R.string.message_code_scanned,
+                            context.getString(scannedFormat.labelRes),
+                        ),
+                    )
                 },
             )
         }
@@ -595,6 +616,7 @@ private fun EmblemSelector(
 ) {
     val image = rememberPickedImage(pickedUri?.let(Uri::parse), targetSize = 192)
         ?: rememberEmblemImage(imagePath, targetSize = 192)
+    val emblemDescription = stringResource(R.string.add_emblem_select)
 
     Box(
         modifier = Modifier
@@ -604,7 +626,7 @@ private fun EmblemSelector(
             .clickable(onClick = onClick)
             .semantics {
                 role = Role.Button
-                contentDescription = "Выбрать эмблему карты"
+                contentDescription = emblemDescription
             },
         contentAlignment = Alignment.Center,
     ) {
@@ -697,14 +719,14 @@ private fun DraftPreviewCard(
                 Spacer(Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = name.ifBlank { "Название магазина" },
+                        text = name.ifBlank { stringResource(R.string.add_preview_store_name) },
                         style = MaterialTheme.typography.titleLarge,
                         color = palette.content.copy(alpha = if (name.isBlank()) 0.48f else 1f),
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
-                        text = "Бонусная карта",
+                        text = stringResource(R.string.add_preview_loyalty_card),
                         style = MaterialTheme.typography.labelMedium,
                         color = palette.content.copy(alpha = 0.62f),
                     )
@@ -750,7 +772,7 @@ private fun DraftPreviewCard(
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
-                            text = "Здесь появится сгенерированный код",
+                            text = stringResource(R.string.add_preview_empty_code),
                             style = MaterialTheme.typography.bodySmall,
                             color = Color(0xFF8A8490),
                         )
@@ -786,13 +808,13 @@ private fun EmblemSheet(
             .padding(bottom = 24.dp),
     ) {
         Text(
-            text = "Эмблема карты",
+            text = stringResource(R.string.add_emblem_title),
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onSurface,
         )
         Spacer(Modifier.height(6.dp))
         Text(
-            text = "Выберите эмодзи или загрузите логотип магазина из галереи.",
+            text = stringResource(R.string.add_emblem_text),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -853,7 +875,7 @@ private fun EmblemSheet(
                     modifier = Modifier.size(20.dp),
                 )
                 Spacer(Modifier.width(8.dp))
-                Text("Фото из галереи")
+                Text(stringResource(R.string.add_emblem_photo))
             }
             if (hasImage) {
                 TextButton(
@@ -862,7 +884,7 @@ private fun EmblemSheet(
                         contentColor = MaterialTheme.colorScheme.error,
                     ),
                 ) {
-                    Text("Убрать")
+                    Text(stringResource(R.string.add_emblem_remove))
                 }
             }
         }

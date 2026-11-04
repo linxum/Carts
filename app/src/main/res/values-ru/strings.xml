@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Кошелёк</string>
+
+    <!-- Общие действия -->
+    <string name="action_back">Назад</string>
+    <string name="action_cancel">Отмена</string>
+    <string name="action_close">Закрыть</string>
+    <string name="action_clear">Очистить</string>
+    <string name="action_delete">Удалить</string>
+    <string name="action_edit">Изменить</string>
+    <string name="action_done">Готово</string>
+    <string name="action_more">Действия</string>
+    <string name="action_settings">Настройки</string>
+
+    <!-- Кошелёк -->
+    <string name="wallet_title">Кошелёк</string>
+    <string name="wallet_add_card">Добавить карту</string>
+    <string name="wallet_reorder">Изменить порядок карт</string>
+    <string name="wallet_empty_title">Пока ни одной карты</string>
+    <string name="wallet_empty_text">Добавьте бонусную карту, чтобы её код всегда был под рукой.</string>
+    <string name="wallet_code_label">КОД</string>
+    <string name="wallet_reorder_title">Порядок карт</string>
+    <string name="wallet_reorder_hint">Первая карта находится выше всех в стопке.</string>
+    <string name="wallet_move_up">Переместить выше</string>
+    <string name="wallet_move_down">Переместить ниже</string>
+
+    <!-- Экран карты -->
+    <string name="detail_copy_code">Копировать код</string>
+    <string name="detail_delete_card">Удалить карту</string>
+    <string name="detail_refresh_code">Обновить код</string>
+    <string name="detail_code_hint">Покажите код на кассе. Он каждый раз создаётся из данных карты.</string>
+    <string name="detail_storage_note">Данные хранятся только на этом устройстве</string>
+    <string name="detail_delete_title">Удалить карту?</string>
+    <string name="detail_delete_text">Карта «%1$s» и её эмблема будут удалены с устройства. Это действие нельзя отменить.</string>
+    <string name="message_code_copied">Код скопирован</string>
+
+    <!-- Добавление и редактирование карты -->
+    <string name="add_title_new">Новая карта</string>
+    <string name="add_title_edit">Изменить карту</string>
+    <string name="add_subtitle_new">Добавьте карту в свой кошелёк</string>
+    <string name="add_subtitle_edit">Обновите данные карты</string>
+    <string name="add_section_store">Магазин</string>
+    <string name="add_store_name_label">Название магазина</string>
+    <string name="add_store_name_placeholder">Например, «Пятёрочка»</string>
+    <string name="add_section_code">Код карты</string>
+    <string name="add_code_label">Номер или данные кода</string>
+    <string name="add_code_format">Формат кода</string>
+    <string name="add_scan_code">Сканировать код камерой</string>
+    <string name="add_section_appearance">Оформление</string>
+    <string name="add_card_color">Цвет карты</string>
+    <string name="add_card_color_description">Цвет карты %1$d</string>
+    <string name="add_code_note">Код хранится как текст и каждый раз рисуется заново. Фотография кода не сохраняется.</string>
+    <string name="add_save_changes">Сохранить изменения</string>
+    <string name="add_add_to_wallet">Добавить в кошелёк</string>
+    <string name="add_preview_store_name">Название магазина</string>
+    <string name="add_preview_loyalty_card">Бонусная карта</string>
+    <string name="add_preview_empty_code">Здесь появится сгенерированный код</string>
+    <string name="add_emblem_title">Эмблема карты</string>
+    <string name="add_emblem_text">Выберите эмодзи или загрузите логотип магазина из галереи.</string>
+    <string name="add_emblem_select">Выбрать эмблему карты</string>
+    <string name="add_emblem_photo">Фото из галереи</string>
+    <string name="add_emblem_remove">Убрать</string>
+    <string name="error_store_name_required">Введите название магазина</string>
+    <string name="error_code_required">Введите или отсканируйте код карты</string>
+    <string name="error_code_format">Код не подходит для формата %1$s. Проверьте данные.</string>
+    <string name="error_save_card">Не удалось сохранить карту. Попробуйте ещё раз.</string>
+    <string name="message_code_scanned">Код распознан: %1$s</string>
+
+    <!-- Сканер -->
+    <string name="scanner_title">Сканирование кода</string>
+    <string name="scanner_close">Закрыть сканер</string>
+    <string name="scanner_flash">Вспышка</string>
+    <string name="scanner_hint">Поместите код в рамку</string>
+    <string name="scanner_formats">QR, Data Matrix, Code 128, EAN и другие штрихкоды</string>
+    <string name="scanner_permission_title">Нужен доступ к камере</string>
+    <string name="scanner_permission_text">Камера используется только для распознавания кода карты. Изображение не сохраняется и не отправляется в сеть.</string>
+    <string name="scanner_permission_denied_text">Без камеры не получится распознать код. Включите доступ в настройках приложения.</string>
+    <string name="scanner_permission_grant">Разрешить камеру</string>
+    <string name="scanner_open_settings">Открыть настройки</string>
+
+    <!-- Настройки -->
+    <string name="settings_title">Настройки</string>
+    <string name="settings_section_appearance">Оформление</string>
+    <string name="settings_theme">Тема</string>
+    <string name="settings_theme_system">Системная</string>
+    <string name="settings_theme_light">Светлая</string>
+    <string name="settings_theme_dark">Тёмная</string>
+    <string name="settings_dynamic_title">Цвета обоев</string>
+    <string name="settings_dynamic_subtitle">Использовать палитру Material You с рабочего стола</string>
+    <string name="settings_accent">Цветовой акцент</string>
+    <string name="settings_accent_from_system">Акцент берётся из системной палитры.</string>
+    <string name="settings_section_data">Данные</string>
+    <plurals name="settings_card_count">
+        <item quantity="one">В кошельке %1$d карта.</item>
+        <item quantity="few">В кошельке %1$d карты.</item>
+        <item quantity="many">В кошельке %1$d карт.</item>
+        <item quantity="other">В кошельке %1$d карты.</item>
+    </plurals>
+    <string name="settings_export">Экспорт</string>
+    <string name="settings_import">Импорт</string>
+    <string name="settings_backup_note">Резервная копия — JSON-файл с картами и эмблемами. Импорт добавляет карты к текущим.</string>
+    <string name="settings_section_danger">Опасная зона</string>
+    <string name="settings_delete_all_note">Удаление всех карт с этого устройства. Сначала сделайте резервную копию.</string>
+    <string name="settings_delete_all">Удалить все карты</string>
+    <string name="settings_section_about">О приложении</string>
+    <string name="settings_about_title">Carts — кошелёк бонусных карт</string>
+    <string name="settings_about_version">Версия 1.0 · Данные хранятся только на устройстве</string>
+    <string name="settings_delete_all_title">Удалить все карты?</string>
+    <string name="settings_delete_all_text">Все карты и их эмблемы будут удалены с устройства. Это действие нельзя отменить.</string>
+    <string name="settings_delete_all_confirm">Удалить все</string>
+
+    <!-- Акценты -->
+    <string name="accent_violet">Фиолетовый</string>
+    <string name="accent_blue">Синий</string>
+    <string name="accent_green">Зелёный</string>
+    <string name="accent_orange">Оранжевый</string>
+    <string name="accent_pink">Розовый</string>
+    <string name="accent_teal">Бирюзовый</string>
+
+    <!-- Сообщения -->
+    <string name="message_card_deleted">Карта удалена</string>
+    <string name="error_delete_card">Не удалось удалить карту</string>
+    <string name="message_card_added">Карта добавлена в кошелёк</string>
+    <string name="message_changes_saved">Изменения сохранены</string>
+    <string name="message_exported">Экспортировано карт: %1$d</string>
+    <string name="error_export">Не удалось экспортировать данные</string>
+    <string name="message_imported">Импортировано карт: %1$d</string>
+    <string name="error_import">Не удалось прочитать резервную копию</string>
+    <string name="message_all_deleted">Все карты удалены</string>
+    <string name="error_delete_all">Не удалось удалить карты</string>
+    <string name="missing_card_title">Карта не найдена</string>
+    <string name="missing_card_text">Возможно, она была удалена с этого устройства.</string>
+    <string name="missing_card_back">Вернуться в кошелёк</string>
+
+    <!-- Штрихкод -->
+    <string name="barcode_error">Не удалось построить код.\nПроверьте данные и формат.</string>
+
+    <!-- Ошибки хранилища -->
+    <string name="error_read_emblem">Не удалось прочитать изображение эмблемы</string>
+    <string name="error_open_output">Не удалось открыть файл для записи</string>
+    <string name="error_read_file">Не удалось прочитать файл</string>
+    <string name="error_no_card_data">В файле нет данных карт</string>
+
+    <!-- Форматы кодов -->
+    <string name="format_qr_code">QR-код</string>
+
+    <!-- Подсказки для форматов -->
+    <string name="placeholder_qr">Текст или ссылка</string>
+    <string name="placeholder_code_data">Данные кода</string>
+</resources>

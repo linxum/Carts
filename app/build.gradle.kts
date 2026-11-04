@@ -29,6 +29,10 @@ val hasReleaseSigning = listOf(
     releaseKeyPassword,
 ).all { it != null }
 
+// Версию можно передать из CI (-PversionName/-PversionCode), иначе остаются значения по умолчанию.
+val buildVersionName = providers.gradleProperty("versionName").orNull?.takeIf(String::isNotBlank)
+val buildVersionCode = providers.gradleProperty("versionCode").orNull?.toIntOrNull()
+
 android {
     namespace = "com.smekhnyov.carts"
     compileSdk {
@@ -39,8 +43,8 @@ android {
         applicationId = "com.smekhnyov.carts"
         minSdk = 31
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = buildVersionCode ?: 1
+        versionName = buildVersionName ?: "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

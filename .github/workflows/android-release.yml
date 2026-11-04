@@ -7,7 +7,7 @@ on:
       - "v*"
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: release-${{ github.ref }}
@@ -37,6 +37,29 @@ jobs:
 
       - name: Enforce Gradle wrapper permissions
         run: chmod +x gradlew
+
+      - name: Resolve version
+        id: version
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            name="${GITHUB_REF_NAME#v}"
+          else
+            name="1.0"
+          fi
+          name="${name%%-*}"
+
+          IFS='.' read -r major minor patch <<< "$name"
+          major="$(echo "${major:-0}" | tr -cd '0-9')"
+          minor="$(echo "${minor:-0}" | tr -cd '0-9')"
+          patch="$(echo "${patch:-0}" | tr -cd '0-9')"
+          major="${major:-0}"
+          minor="${minor:-0}"
+          patch="${patch:-0}"
+
+          code=$(( major * 10000 + minor * 100 + patch ))
+          echo "name=$major.$minor.$patch" >> "$GITHUB_OUTPUT"
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "Version: $major.$minor.$patch ($code)"
 
       - name: Check signing secrets
         env:
@@ -69,7 +92,11 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./gradlew :app:assembleRelease --no-daemon --console=plain
+        run: >
+          ./gradlew :app:assembleRelease
+          -PversionName=${{ steps.version.outputs.name }}
+          -PversionCode=${{ steps.version.outputs.code }}
+          --no-daemon --console=plain
 
       - name: Verify APK signature
         run: |
@@ -77,10 +104,36 @@ jobs:
           echo "APK: $apk"
           "$ANDROID_HOME/build-tools/37.0.0/apksigner" verify --print-certs "$apk"
 
-      - name: Upload APK
+      - name: Prepare artifact
+        id: artifact
+        run: |
+          mkdir -p dist
+          src=$(find app/build/outputs/apk/release -name '*.apk' | head -n 1)
+          dest="dist/carts-${{ steps.version.outputs.name }}.apk"
+          cp "$src" "$dest"
+          echo "path=$dest" >> "$GITHUB_OUTPUT"
+          ls -l dist
+
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: carts-release-${{ github.run_number }}
-          path: app/build/outputs/apk/release/*.apk
+          name: carts-${{ steps.version.outputs.name }}-${{ github.run_number }}
+          path: dist/*.apk
           if-no-files-found: error
           retention-days: 30
+
+      - name: Publish GitHub release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION_NAME: ${{ steps.version.outputs.name }}
+          APK_PATH: ${{ steps.artifact.outputs.path }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" "$APK_PATH" --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" "$APK_PATH" \
+              --title "Carts $VERSION_NAME" \
+              --generate-notes \
+              --verify-tag
+          fi

@@ -9,3 +9,7 @@ local.properties
 /captures
 .externalNativeBuild
 .cxx
+
+# Release signing
+keystore.properties
+keystore/

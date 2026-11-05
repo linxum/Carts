@@ -24,6 +24,10 @@ class SettingsRepository(context: Context) {
         update(_settings.value.copy(useDynamicColor = enabled))
     }
 
+    fun setUseDynamicColorForCards(enabled: Boolean) {
+        update(_settings.value.copy(useDynamicColorForCards = enabled))
+    }
+
     fun setAccent(accent: AppAccent) {
         update(_settings.value.copy(accent = accent))
     }
@@ -32,6 +36,7 @@ class SettingsRepository(context: Context) {
         preferences.edit()
             .putString(KEY_THEME_MODE, settings.themeMode.name)
             .putBoolean(KEY_DYNAMIC_COLOR, settings.useDynamicColor)
+            .putBoolean(KEY_DYNAMIC_COLOR_FOR_CARDS, settings.useDynamicColorForCards)
             .putString(KEY_ACCENT, settings.accent.name)
             .apply()
         _settings.value = settings
@@ -40,6 +45,7 @@ class SettingsRepository(context: Context) {
     private fun readSettings(): AppSettings = AppSettings(
         themeMode = ThemeMode.fromStorage(preferences.getString(KEY_THEME_MODE, null)),
         useDynamicColor = preferences.getBoolean(KEY_DYNAMIC_COLOR, false),
+        useDynamicColorForCards = preferences.getBoolean(KEY_DYNAMIC_COLOR_FOR_CARDS, true),
         accent = AppAccent.fromStorage(preferences.getString(KEY_ACCENT, null)),
     )
 
@@ -47,6 +53,7 @@ class SettingsRepository(context: Context) {
         const val PREFERENCES_NAME = "carts_settings"
         const val KEY_THEME_MODE = "theme_mode"
         const val KEY_DYNAMIC_COLOR = "dynamic_color"
+        const val KEY_DYNAMIC_COLOR_FOR_CARDS = "dynamic_color_for_cards"
         const val KEY_ACCENT = "accent"
     }
 }

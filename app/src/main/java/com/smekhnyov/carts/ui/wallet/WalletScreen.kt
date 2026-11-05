@@ -273,7 +273,7 @@ private fun WalletCard(
     onLongClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val palette = paletteFor(card.paletteIndex)
+    val palette = paletteFor(card.paletteIndex, card.customColor)
     val shape = RoundedCornerShape(28.dp)
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()

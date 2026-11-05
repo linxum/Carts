@@ -18,6 +18,7 @@ internal class CardsDatabase(context: Context) :
                 $COLUMN_CODE TEXT NOT NULL,
                 $COLUMN_FORMAT TEXT NOT NULL,
                 $COLUMN_PALETTE INTEGER NOT NULL DEFAULT 0,
+                $COLUMN_CUSTOM_COLOR INTEGER,
                 $COLUMN_EMBLEM_EMOJI TEXT,
                 $COLUMN_EMBLEM_IMAGE TEXT,
                 $COLUMN_NOTE TEXT,
@@ -75,6 +76,11 @@ internal class CardsDatabase(context: Context) :
                 "ALTER TABLE $TABLE_CARDS ADD COLUMN $COLUMN_NOTE TEXT",
             )
         }
+        if (oldVersion < 4) {
+            db.execSQL(
+                "ALTER TABLE $TABLE_CARDS ADD COLUMN $COLUMN_CUSTOM_COLOR INTEGER",
+            )
+        }
     }
 
     fun readAll(): List<LoyaltyCard> {
@@ -126,6 +132,7 @@ internal class CardsDatabase(context: Context) :
                 put(COLUMN_CODE, draft.code.trim())
                 put(COLUMN_FORMAT, draft.format.name)
                 put(COLUMN_PALETTE, draft.paletteIndex)
+                put(COLUMN_CUSTOM_COLOR, draft.customColor)
                 put(COLUMN_EMBLEM_EMOJI, draft.emblemEmoji)
                 put(COLUMN_EMBLEM_IMAGE, emblemImagePath)
                 put(COLUMN_NOTE, draft.note.trim().ifEmpty { null })
@@ -146,6 +153,7 @@ internal class CardsDatabase(context: Context) :
             put(COLUMN_CODE, draft.code.trim())
             put(COLUMN_FORMAT, draft.format.name)
             put(COLUMN_PALETTE, draft.paletteIndex)
+            put(COLUMN_CUSTOM_COLOR, draft.customColor)
             put(COLUMN_EMBLEM_EMOJI, draft.emblemEmoji)
             put(COLUMN_EMBLEM_IMAGE, emblemImagePath)
             put(COLUMN_NOTE, draft.note.trim().ifEmpty { null })
@@ -216,6 +224,9 @@ internal class CardsDatabase(context: Context) :
             getString(getColumnIndexOrThrow(COLUMN_FORMAT)),
         ),
         paletteIndex = getInt(getColumnIndexOrThrow(COLUMN_PALETTE)),
+        customColor = getColumnIndexOrThrow(COLUMN_CUSTOM_COLOR).let { index ->
+            if (isNull(index)) null else getLong(index)
+        },
         emblemEmoji = getString(getColumnIndexOrThrow(COLUMN_EMBLEM_EMOJI)),
         emblemImagePath = getString(getColumnIndexOrThrow(COLUMN_EMBLEM_IMAGE)),
         createdAt = getLong(getColumnIndexOrThrow(COLUMN_CREATED_AT)),
@@ -225,7 +236,7 @@ internal class CardsDatabase(context: Context) :
 
     companion object {
         private const val DATABASE_NAME = "carts.db"
-        private const val DATABASE_VERSION = 3
+        private const val DATABASE_VERSION = 4
 
         const val TABLE_CARDS = "cards"
 
@@ -234,6 +245,7 @@ internal class CardsDatabase(context: Context) :
         const val COLUMN_CODE = "code"
         const val COLUMN_FORMAT = "format"
         const val COLUMN_PALETTE = "palette"
+        const val COLUMN_CUSTOM_COLOR = "custom_color"
         const val COLUMN_EMBLEM_EMOJI = "emblem_emoji"
         const val COLUMN_EMBLEM_IMAGE = "emblem_image"
         const val COLUMN_NOTE = "note"
@@ -246,6 +258,7 @@ internal class CardsDatabase(context: Context) :
             COLUMN_CODE,
             COLUMN_FORMAT,
             COLUMN_PALETTE,
+            COLUMN_CUSTOM_COLOR,
             COLUMN_EMBLEM_EMOJI,
             COLUMN_EMBLEM_IMAGE,
             COLUMN_NOTE,

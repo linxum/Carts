@@ -79,7 +79,7 @@ fun CardDetailScreen(
     onDelete: () -> Unit,
     onMessage: (String) -> Unit,
 ) {
-    val palette = paletteFor(card.paletteIndex)
+    val palette = paletteFor(card.paletteIndex, card.customColor)
     var showDeleteDialog by remember { mutableStateOf(false) }
     var menuExpanded by remember { mutableStateOf(false) }
     val clipboard = LocalClipboardManager.current

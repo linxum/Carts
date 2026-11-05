@@ -1,5 +1,6 @@
 package com.smekhnyov.carts.ui.add
 
+import android.graphics.Color as AndroidColor
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -59,6 +60,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -66,7 +68,9 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -78,6 +82,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -102,6 +107,7 @@ import com.smekhnyov.carts.data.LoyaltyCard
 import com.smekhnyov.carts.ui.cards.CardPaletteCount
 import com.smekhnyov.carts.ui.cards.DefaultEmblem
 import com.smekhnyov.carts.ui.cards.EmblemPresets
+import com.smekhnyov.carts.ui.cards.customPalette
 import com.smekhnyov.carts.ui.cards.paletteFor
 import com.smekhnyov.carts.ui.cards.rememberEmblemImage
 import com.smekhnyov.carts.ui.cards.rememberPickedImage
@@ -115,6 +121,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.IOException
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -152,6 +159,9 @@ fun AddCardScreen(
     var paletteIndex by rememberSaveable(initialKey) {
         mutableIntStateOf(initialCard?.paletteIndex ?: 0)
     }
+    var customColorArgb by rememberSaveable(initialKey) {
+        mutableLongStateOf(initialCard?.customColor ?: 0L)
+    }
     var imagePath by rememberSaveable(initialKey) {
         mutableStateOf(initialCard?.emblemImagePath)
     }
@@ -166,6 +176,7 @@ fun AddCardScreen(
     }
 
     var showEmblemSheet by rememberSaveable { mutableStateOf(false) }
+    var showColorSheet by rememberSaveable { mutableStateOf(false) }
     var scannerOpen by rememberSaveable { mutableStateOf(false) }
     var scanningPhoto by remember { mutableStateOf(false) }
     var saving by remember { mutableStateOf(false) }
@@ -173,6 +184,7 @@ fun AddCardScreen(
 
     val format = CardFormat.entries.firstOrNull { it.name == formatName } ?: CardFormat.QR_CODE
     val isEditing = initialCard != null
+    val customColor = customColorArgb.takeIf { it != 0L }
 
     val onCodeChange: (String) -> Unit = { value ->
         code = value
@@ -291,6 +303,7 @@ fun AddCardScreen(
                 code = trimmedCode,
                 format = format,
                 paletteIndex = paletteIndex,
+                customColor = customColor,
                 emblemEmoji = emoji,
                 emblemImagePath = if (removeImage) null else imagePath,
                 newEmblemUri = pickedUri?.let(Uri::parse),
@@ -368,6 +381,7 @@ fun AddCardScreen(
                 code = code,
                 format = format,
                 paletteIndex = paletteIndex,
+                customColor = customColor,
                 emoji = emoji,
                 imagePath = imagePath,
                 pickedUri = pickedUri,
@@ -585,7 +599,7 @@ fun AddCardScreen(
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     items(CardPaletteCount) { index ->
                         val palette = paletteFor(index)
-                        val selected = paletteIndex == index
+                        val selected = customColorArgb == 0L && paletteIndex == index
                         val colorDescription = stringResource(
                             R.string.add_card_color_description,
                             index + 1,
@@ -610,6 +624,7 @@ fun AddCardScreen(
                                 .background(palette.container)
                                 .clickable {
                                     paletteIndex = index
+                                    customColorArgb = 0L
                                 }
                                 .semantics {
                                     role = Role.RadioButton
@@ -624,6 +639,56 @@ fun AddCardScreen(
                                     tint = palette.content,
                                     modifier = Modifier.size(18.dp),
                                 )
+                            }
+                        }
+                    }
+                    item(key = "custom") {
+                        val customSelected = customColorArgb != 0L
+                        val customPreview = if (customSelected) {
+                            Color(customColorArgb)
+                        } else {
+                            MaterialTheme.colorScheme.surfaceContainerHigh
+                        }
+                        val customContent = if (customSelected) {
+                            customPalette(customPreview).content
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        }
+                        val colorDescription = stringResource(R.string.add_color_custom)
+                        Box(
+                            modifier = Modifier
+                                .size(42.dp)
+                                .clip(CircleShape)
+                                .then(
+                                    if (customSelected) {
+                                        Modifier.border(
+                                            2.dp,
+                                            MaterialTheme.colorScheme.onSurface,
+                                            CircleShape,
+                                        )
+                                    } else {
+                                        Modifier
+                                    },
+                                )
+                                .padding(5.dp)
+                                .clip(CircleShape)
+                                .background(customPreview)
+                                .clickable { showColorSheet = true }
+                                .semantics {
+                                    role = Role.RadioButton
+                                    contentDescription = colorDescription
+                                },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            if (customSelected) {
+                                Icon(
+                                    imageVector = Icons.Filled.Check,
+                                    contentDescription = null,
+                                    tint = customContent,
+                                    modifier = Modifier.size(18.dp),
+                                )
+                            } else {
+                                Text(text = "🎨", fontSize = 18.sp)
                             }
                         }
                     }
@@ -724,6 +789,25 @@ fun AddCardScreen(
                     },
                 )
             }
+        }
+
+        if (showColorSheet) {
+            ColorSheet(
+                initialColor = if (customColorArgb != 0L) {
+                    Color(customColorArgb)
+                } else {
+                    paletteFor(paletteIndex).container
+                },
+                onDismiss = { showColorSheet = false },
+                onColorSelected = { color ->
+                    customColorArgb = color.toArgb().toLong() and 0xFFFFFFFFL
+                    showColorSheet = false
+                },
+                onReset = {
+                    customColorArgb = 0L
+                    showColorSheet = false
+                },
+            )
         }
 
         if (scannerOpen) {
@@ -837,11 +921,12 @@ private fun DraftPreviewCard(
     code: String,
     format: CardFormat,
     paletteIndex: Int,
+    customColor: Long?,
     emoji: String,
     imagePath: String?,
     pickedUri: String?,
 ) {
-    val palette = paletteFor(paletteIndex)
+    val palette = paletteFor(paletteIndex, customColor)
     val shape = RoundedCornerShape(30.dp)
     val image = rememberPickedImage(pickedUri?.let(Uri::parse), targetSize = 192)
         ?: rememberEmblemImage(imagePath, targetSize = 192)
@@ -1060,6 +1145,139 @@ private fun EmblemSheet(
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ColorSheet(
+    initialColor: Color,
+    onDismiss: () -> Unit,
+    onColorSelected: (Color) -> Unit,
+    onReset: () -> Unit,
+) {
+    val initialHsv = remember(initialColor) {
+        FloatArray(3).also { AndroidColor.colorToHSV(initialColor.toArgb(), it) }
+    }
+    var hue by remember(initialColor) { mutableFloatStateOf(initialHsv[0]) }
+    var saturation by remember(initialColor) { mutableFloatStateOf(initialHsv[1]) }
+    var brightness by remember(initialColor) { mutableFloatStateOf(initialHsv[2]) }
+    val color = Color(
+        AndroidColor.HSVToColor(floatArrayOf(hue, saturation, brightness)),
+    )
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 24.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.add_color_custom_title),
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = stringResource(R.string.add_color_custom_text),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(18.dp))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(88.dp)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(color)
+                    .border(
+                        1.dp,
+                        MaterialTheme.colorScheme.outlineVariant,
+                        RoundedCornerShape(24.dp),
+                    ),
+            )
+
+            Spacer(Modifier.height(18.dp))
+            ColorSlider(
+                label = stringResource(R.string.add_color_hue),
+                valueText = "${hue.roundToInt()}°",
+                value = hue,
+                valueRange = 0f..360f,
+                onValueChange = { hue = it },
+            )
+            ColorSlider(
+                label = stringResource(R.string.add_color_saturation),
+                valueText = "${(saturation * 100).roundToInt()}%",
+                value = saturation,
+                valueRange = 0f..1f,
+                onValueChange = { saturation = it },
+            )
+            ColorSlider(
+                label = stringResource(R.string.add_color_brightness),
+                valueText = "${(brightness * 100).roundToInt()}%",
+                value = brightness,
+                valueRange = 0f..1f,
+                onValueChange = { brightness = it },
+            )
+
+            Spacer(Modifier.height(18.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                OutlinedButton(
+                    onClick = onReset,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(18.dp),
+                ) {
+                    Text(stringResource(R.string.add_color_reset))
+                }
+                Button(
+                    onClick = { onColorSelected(color) },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(18.dp),
+                ) {
+                    Text(stringResource(R.string.add_color_apply))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ColorSlider(
+    label: String,
+    valueText: String,
+    value: Float,
+    valueRange: ClosedFloatingPointRange<Float>,
+    onValueChange: (Float) -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = label,
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            text = valueText,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+    Slider(
+        value = value,
+        onValueChange = onValueChange,
+        valueRange = valueRange,
+    )
 }
 
 @Composable

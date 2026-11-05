@@ -16,5 +16,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     fun setUseDynamicColor(enabled: Boolean) = repository.setUseDynamicColor(enabled)
 
+    fun setUseDynamicColorForCards(enabled: Boolean) =
+        repository.setUseDynamicColorForCards(enabled)
+
     fun setAccent(accent: AppAccent) = repository.setAccent(accent)
 }

@@ -8,6 +8,8 @@ import androidx.compose.material3.Shapes
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -23,6 +25,12 @@ private val AppShapes = Shapes(
     extraLarge = RoundedCornerShape(36.dp),
 )
 
+/**
+ * Схема, из которой берутся цвета карт. Может отличаться от [MaterialTheme.colorScheme],
+ * если включены цвета обоев, но пользователь не хочет перекрашивать карты.
+ */
+val LocalCardColorScheme = staticCompositionLocalOf<ColorScheme?> { null }
+
 @Composable
 fun CartsTheme(
     settings: AppSettings = AppSettings(),
@@ -35,21 +43,30 @@ fun CartsTheme(
         ThemeMode.DARK -> true
     }
 
-    val colorScheme = when {
-        settings.useDynamicColor -> {
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme.withAccent(settings.accent, dark = true)
-        else -> LightColorScheme.withAccent(settings.accent, dark = false)
+    val accentScheme = if (darkTheme) {
+        DarkColorScheme.withAccent(settings.accent, dark = true)
+    } else {
+        LightColorScheme.withAccent(settings.accent, dark = false)
+    }
+    val colorScheme = if (settings.useDynamicColor) {
+        if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+    } else {
+        accentScheme
+    }
+    val cardColorScheme = if (settings.useDynamicColor && !settings.useDynamicColorForCards) {
+        accentScheme
+    } else {
+        colorScheme
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        shapes = AppShapes,
-        typography = Typography,
-        content = content,
-    )
+    CompositionLocalProvider(LocalCardColorScheme provides cardColorScheme) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            shapes = AppShapes,
+            typography = Typography,
+            content = content,
+        )
+    }
 }
 
 private fun ColorScheme.withAccent(accent: AppAccent, dark: Boolean): ColorScheme =

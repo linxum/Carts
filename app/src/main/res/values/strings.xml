@@ -57,6 +57,14 @@
     <string name="add_section_appearance">Appearance</string>
     <string name="add_card_color">Card color</string>
     <string name="add_card_color_description">Card color %1$d</string>
+    <string name="add_color_custom">Any color</string>
+    <string name="add_color_custom_title">Card color</string>
+    <string name="add_color_custom_text">Pick any shade using hue, saturation, and brightness.</string>
+    <string name="add_color_hue">Hue</string>
+    <string name="add_color_saturation">Saturation</string>
+    <string name="add_color_brightness">Brightness</string>
+    <string name="add_color_apply">Apply</string>
+    <string name="add_color_reset">Use palette color</string>
     <string name="add_code_note">The code is stored as text and drawn anew each time. No photo of the code is saved.</string>
     <string name="add_save_changes">Save changes</string>
     <string name="add_add_to_wallet">Add to wallet</string>
@@ -96,6 +104,8 @@
     <string name="settings_theme_dark">Dark</string>
     <string name="settings_dynamic_title">Wallpaper colors</string>
     <string name="settings_dynamic_subtitle">Use the Material You palette from the home screen</string>
+    <string name="settings_cards_dynamic_title">Wallpaper colors for cards</string>
+    <string name="settings_cards_dynamic_subtitle">When disabled, cards use the selected accent instead of wallpaper colors.</string>
     <string name="settings_accent">Accent color</string>
     <string name="settings_accent_from_system">The accent comes from the system palette.</string>
     <string name="settings_section_data">Data</string>

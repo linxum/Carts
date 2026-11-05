@@ -108,5 +108,7 @@ enum class AppAccent(
 data class AppSettings(
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     val useDynamicColor: Boolean = false,
+    /** Перекрашивать карты цветами обоев, когда включён динамический цвет. */
+    val useDynamicColorForCards: Boolean = true,
     val accent: AppAccent = AppAccent.VIOLET,
 )

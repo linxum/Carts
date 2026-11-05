@@ -8,6 +8,8 @@ data class LoyaltyCard(
     val code: String,
     val format: CardFormat,
     val paletteIndex: Int,
+    /** Собственный цвет карты в ARGB; если задан, набор палитры не используется. */
+    val customColor: Long? = null,
     val emblemEmoji: String?,
     val emblemImagePath: String?,
     val createdAt: Long,
@@ -26,6 +28,7 @@ data class CardDraft(
     val code: String,
     val format: CardFormat,
     val paletteIndex: Int,
+    val customColor: Long? = null,
     val emblemEmoji: String?,
     val emblemImagePath: String?,
     /** Новый файл из системного выбора фото. Копируется в приватное хранилище при сохранении. */

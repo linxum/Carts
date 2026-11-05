@@ -107,6 +107,7 @@ class CardRepository(context: Context) {
                     put("code", card.code)
                     put("format", card.format.name)
                     put("palette", card.paletteIndex)
+                    card.customColor?.let { put("customColor", it) }
                     card.emblemEmoji?.let { put("emblemEmoji", it) }
                     card.note?.takeIf { it.isNotBlank() }?.let { put("note", it) }
                     card.emblemImagePath?.let { path ->
@@ -161,6 +162,7 @@ class CardRepository(context: Context) {
                 code = code,
                 format = format,
                 paletteIndex = item.optInt("palette", 0),
+                customColor = item.optLong("customColor", 0L).takeIf { it != 0L },
                 emblemEmoji = item.optString("emblemEmoji").takeIf { it.isNotBlank() },
                 emblemImagePath = imagePath,
                 note = item.optString("note"),
@@ -257,6 +259,6 @@ class CardRepository(context: Context) {
     }.getOrNull()
 
     companion object {
-        private const val BACKUP_VERSION = 2
+        private const val BACKUP_VERSION = 3
     }
 }

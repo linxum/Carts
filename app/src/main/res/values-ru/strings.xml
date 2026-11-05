@@ -57,6 +57,14 @@
     <string name="add_section_appearance">Оформление</string>
     <string name="add_card_color">Цвет карты</string>
     <string name="add_card_color_description">Цвет карты %1$d</string>
+    <string name="add_color_custom">Любой цвет</string>
+    <string name="add_color_custom_title">Цвет карты</string>
+    <string name="add_color_custom_text">Выберите любой оттенок с помощью тона, насыщенности и яркости.</string>
+    <string name="add_color_hue">Тон</string>
+    <string name="add_color_saturation">Насыщенность</string>
+    <string name="add_color_brightness">Яркость</string>
+    <string name="add_color_apply">Применить</string>
+    <string name="add_color_reset">Вернуть цвет из набора</string>
     <string name="add_code_note">Код хранится как текст и каждый раз рисуется заново. Фотография кода не сохраняется.</string>
     <string name="add_save_changes">Сохранить изменения</string>
     <string name="add_add_to_wallet">Добавить в кошелёк</string>
@@ -96,6 +104,8 @@
     <string name="settings_theme_dark">Тёмная</string>
     <string name="settings_dynamic_title">Цвета обоев</string>
     <string name="settings_dynamic_subtitle">Использовать палитру Material You с рабочего стола</string>
+    <string name="settings_cards_dynamic_title">Цвета обоев для карт</string>
+    <string name="settings_cards_dynamic_subtitle">Если выключено, карты используют выбранный акцент вместо цветов обоев.</string>
     <string name="settings_accent">Цветовой акцент</string>
     <string name="settings_accent_from_system">Акцент берётся из системной палитры.</string>
     <string name="settings_section_data">Данные</string>

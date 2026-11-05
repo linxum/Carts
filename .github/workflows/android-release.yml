@@ -116,7 +116,7 @@ jobs:
           echo "APK: $apk"
           "$ANDROID_HOME/build-tools/37.0.0/apksigner" verify --print-certs "$apk"
 
-      - name: Prepare artifact
+      - name: Prepare release APK
         id: artifact
         run: |
           mkdir -p dist
@@ -125,14 +125,6 @@ jobs:
           cp "$src" "$dest"
           echo "path=$dest" >> "$GITHUB_OUTPUT"
           ls -l dist
-
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: carts-${{ steps.version.outputs.name }}-${{ github.run_number }}
-          path: dist/*.apk
-          if-no-files-found: error
-          retention-days: 30
 
       - name: Publish GitHub release
         env:

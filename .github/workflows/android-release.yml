@@ -2,6 +2,11 @@ name: Android Release
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Версия релиза, например 1.0.1"
+        required: true
+        type: string
   push:
     tags:
       - "v*"
@@ -40,26 +45,33 @@ jobs:
 
       - name: Resolve version
         id: version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
         run: |
           if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
             name="${GITHUB_REF_NAME#v}"
+            tag="${GITHUB_REF_NAME}"
           else
-            name="1.0"
+            name="${INPUT_VERSION#v}"
+            tag="v${name}"
           fi
-          name="${name%%-*}"
 
-          IFS='.' read -r major minor patch <<< "$name"
-          major="$(echo "${major:-0}" | tr -cd '0-9')"
-          minor="$(echo "${minor:-0}" | tr -cd '0-9')"
-          patch="$(echo "${patch:-0}" | tr -cd '0-9')"
+          if ! echo "$name" | grep -Eq '^[0-9]+(\.[0-9]+){0,2}(-[0-9A-Za-z.-]+)?$'; then
+            echo "::error::Invalid version '$name'. Use a value like 1.0.1 or 1.0.1-rc1."
+            exit 1
+          fi
+
+          numeric="${name%%-*}"
+          IFS='.' read -r major minor patch <<< "$numeric"
           major="${major:-0}"
           minor="${minor:-0}"
           patch="${patch:-0}"
 
           code=$(( major * 10000 + minor * 100 + patch ))
-          echo "name=$major.$minor.$patch" >> "$GITHUB_OUTPUT"
+          echo "name=$name" >> "$GITHUB_OUTPUT"
           echo "code=$code" >> "$GITHUB_OUTPUT"
-          echo "Version: $major.$minor.$patch ($code)"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "Release: $tag, version $name ($code)"
 
       - name: Check signing secrets
         env:
@@ -123,17 +135,23 @@ jobs:
           retention-days: 30
 
       - name: Publish GitHub release
-        if: github.ref_type == 'tag'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
           VERSION_NAME: ${{ steps.version.outputs.name }}
           APK_PATH: ${{ steps.artifact.outputs.path }}
+          TARGET_SHA: ${{ github.sha }}
         run: |
-          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
-            gh release upload "$GITHUB_REF_NAME" "$APK_PATH" --clobber
-          else
-            gh release create "$GITHUB_REF_NAME" "$APK_PATH" \
+          if gh release view "$RELEASE_TAG" > /dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" "$APK_PATH" --clobber
+          elif [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            gh release create "$RELEASE_TAG" "$APK_PATH" \
               --title "Carts $VERSION_NAME" \
               --generate-notes \
               --verify-tag
+          else
+            gh release create "$RELEASE_TAG" "$APK_PATH" \
+              --title "Carts $VERSION_NAME" \
+              --generate-notes \
+              --target "$TARGET_SHA"
           fi

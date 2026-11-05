@@ -105,22 +105,5 @@ enum class CardFormat(
     companion object {
         fun fromStorage(value: String?): CardFormat =
             entries.firstOrNull { it.name == value } ?: QR_CODE
-
-        /** Наиболее ходовые форматы показываем первыми в выборе. */
-        val pickerOrder: List<CardFormat> = listOf(
-            QR_CODE,
-            DATA_MATRIX,
-            CODE_128,
-            EAN_13,
-            PDF_417,
-            AZTEC,
-            CODE_39,
-            CODE_93,
-            EAN_8,
-            UPC_A,
-            UPC_E,
-            ITF,
-            CODABAR,
-        )
     }
 }

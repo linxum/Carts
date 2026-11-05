@@ -2,8 +2,6 @@ package com.smekhnyov.carts.ui.detail
 
 import android.app.Activity
 import android.view.WindowManager
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,7 +27,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
@@ -46,15 +43,12 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -76,7 +70,6 @@ import com.smekhnyov.carts.ui.components.BarcodeView
 import com.smekhnyov.carts.ui.components.EmblemBadge
 import com.smekhnyov.carts.ui.components.SystemBars
 import com.smekhnyov.carts.ui.components.findActivity
-import kotlinx.coroutines.launch
 
 @Composable
 fun CardDetailScreen(
@@ -89,11 +82,8 @@ fun CardDetailScreen(
     val palette = paletteFor(card.paletteIndex)
     var showDeleteDialog by remember { mutableStateOf(false) }
     var menuExpanded by remember { mutableStateOf(false) }
-    var generation by remember(card.id) { mutableIntStateOf(0) }
     val clipboard = LocalClipboardManager.current
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    val rotation = remember { Animatable(0f) }
 
     KeepScreenBright()
     SystemBars(
@@ -256,26 +246,6 @@ fun CardDetailScreen(
                                 letterSpacing = 1.4.sp,
                             )
                             Spacer(Modifier.weight(1f))
-                            FilledTonalIconButton(
-                                onClick = {
-                                    generation += 1
-                                    scope.launch {
-                                        rotation.animateTo(
-                                            targetValue = rotation.value + 360f,
-                                            animationSpec = tween(450),
-                                        )
-                                    }
-                                },
-                                modifier = Modifier
-                                    .size(38.dp)
-                                    .rotate(rotation.value),
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Refresh,
-                                    contentDescription = stringResource(R.string.detail_refresh_code),
-                                    modifier = Modifier.size(20.dp),
-                                )
-                            }
                         }
 
                         Spacer(Modifier.height(8.dp))
@@ -295,7 +265,6 @@ fun CardDetailScreen(
                             modifier = barcodeModifier.padding(
                                 horizontal = if (card.format.isSquare) 12.dp else 0.dp,
                             ),
-                            regenerationKey = generation,
                         )
 
                         Spacer(Modifier.height(14.dp))
@@ -344,6 +313,34 @@ fun CardDetailScreen(
                 }
 
                 Spacer(Modifier.height(20.dp))
+
+                val note = card.note?.takeIf { it.isNotBlank() }
+                if (note != null) {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(24.dp),
+                        color = MaterialTheme.colorScheme.surface,
+                        shadowElevation = 1.dp,
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(horizontal = 18.dp, vertical = 16.dp),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.detail_note_label).uppercase(),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                letterSpacing = 1.4.sp,
+                            )
+                            Spacer(Modifier.height(6.dp))
+                            Text(
+                                text = note,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                        }
+                    }
+                    Spacer(Modifier.height(20.dp))
+                }
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),

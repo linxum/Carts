@@ -49,8 +49,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -91,6 +89,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.mlkit.vision.barcode.BarcodeScanning
+import com.google.mlkit.vision.barcode.common.Barcode
+import com.google.mlkit.vision.common.InputImage
 import com.smekhnyov.carts.R
 import com.smekhnyov.carts.barcode.BarcodeRenderer
 import com.smekhnyov.carts.data.CardDraft
@@ -107,9 +108,11 @@ import com.smekhnyov.carts.ui.components.BarcodeView
 import com.smekhnyov.carts.ui.components.SystemBars
 import com.smekhnyov.carts.ui.components.WalletBackground
 import com.smekhnyov.carts.ui.scanner.ScannerScreen
+import com.smekhnyov.carts.ui.scanner.toCardFormat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.IOException
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -147,9 +150,13 @@ fun AddCardScreen(
     var removeImage by rememberSaveable(initialKey) {
         mutableStateOf(false)
     }
+    var note by rememberSaveable(initialKey) {
+        mutableStateOf(initialCard?.note.orEmpty())
+    }
 
     var showEmblemSheet by rememberSaveable { mutableStateOf(false) }
     var scannerOpen by rememberSaveable { mutableStateOf(false) }
+    var scanningPhoto by remember { mutableStateOf(false) }
     var saving by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
@@ -169,6 +176,57 @@ fun AddCardScreen(
 
     fun launchPhotoPicker() {
         photoPicker.launch(
+            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+        )
+    }
+
+    val codePhotoPicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        scanningPhoto = true
+        val image = try {
+            InputImage.fromFilePath(context, uri)
+        } catch (_: IOException) {
+            scanningPhoto = false
+            onMessage(context.getString(R.string.error_photo_scan))
+            return@rememberLauncherForActivityResult
+        }
+        val scanner = BarcodeScanning.getClient()
+        scanner.process(image)
+            .addOnSuccessListener { barcodes ->
+                val barcode = barcodes.firstOrNull { !it.rawValue.isNullOrBlank() }
+                val value = barcode?.rawValue
+                if (barcode == null || value == null) {
+                    onMessage(context.getString(R.string.error_photo_scan))
+                } else {
+                    val detectedFormat = if (barcode.format == Barcode.FORMAT_UNKNOWN) {
+                        detectCodeFormat(value)
+                    } else {
+                        barcode.format.toCardFormat()
+                    }
+                    code = value
+                    formatName = detectedFormat.name
+                    errorMessage = null
+                    onMessage(
+                        context.getString(
+                            R.string.message_code_scanned,
+                            context.getString(detectedFormat.labelRes),
+                        ),
+                    )
+                }
+            }
+            .addOnFailureListener {
+                onMessage(context.getString(R.string.error_photo_scan))
+            }
+            .addOnCompleteListener {
+                scanningPhoto = false
+                scanner.close()
+            }
+    }
+
+    fun launchCodePhotoPicker() {
+        codePhotoPicker.launch(
             PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
         )
     }
@@ -211,6 +269,7 @@ fun AddCardScreen(
                 emblemImagePath = if (removeImage) null else imagePath,
                 newEmblemUri = pickedUri?.let(Uri::parse),
                 removeEmblemImage = removeImage,
+                note = note.trim(),
             )
             onSave(draft) { success ->
                 saving = false
@@ -322,6 +381,7 @@ fun AddCardScreen(
                     value = code,
                     onValueChange = {
                         code = it
+                        formatName = detectCodeFormat(it).name
                         errorMessage = null
                     },
                     modifier = Modifier.fillMaxWidth(),
@@ -352,60 +412,61 @@ fun AddCardScreen(
 
                 Spacer(Modifier.height(14.dp))
 
-                Text(
-                    text = stringResource(R.string.add_code_format),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Spacer(Modifier.height(8.dp))
-
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
-                    items(CardFormat.pickerOrder, key = { it.name }) { item ->
-                        FilterChip(
-                            selected = format == item,
-                            onClick = {
-                                formatName = item.name
-                                errorMessage = null
-                            },
-                            label = { Text(item.shortLabel) },
-                            leadingIcon = if (format == item) {
-                                {
-                                    Icon(
-                                        Icons.Filled.Check,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(16.dp),
-                                    )
-                                }
-                            } else {
-                                null
-                            },
-                            shape = CircleShape,
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            ),
+                    FilledTonalButton(
+                        onClick = { scannerOpen = true },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(18.dp),
+                    ) {
+                        Icon(
+                            imageVector = AppIcons.Scan,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
                         )
+                        Spacer(Modifier.width(8.dp))
+                        Text(stringResource(R.string.add_scan_camera))
+                    }
+                    FilledTonalButton(
+                        onClick = ::launchCodePhotoPicker,
+                        enabled = !scanningPhoto,
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(18.dp),
+                    ) {
+                        if (scanningPhoto) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.dp,
+                            )
+                        } else {
+                            Icon(
+                                imageVector = AppIcons.Photo,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                            )
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        Text(stringResource(R.string.add_scan_photo))
                     }
                 }
+            }
 
-                Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(14.dp))
 
-                FilledTonalButton(
-                    onClick = { scannerOpen = true },
+            FormSection(title = stringResource(R.string.add_section_note)) {
+                OutlinedTextField(
+                    value = note,
+                    onValueChange = { note = it },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(18.dp),
-                ) {
-                    Icon(
-                        imageVector = AppIcons.Scan,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                    )
-                    Spacer(Modifier.width(9.dp))
-                    Text(stringResource(R.string.add_scan_code))
-                }
+                    label = { Text(stringResource(R.string.add_note_label)) },
+                    placeholder = { Text(stringResource(R.string.add_note_placeholder)) },
+                    minLines = 1,
+                    maxLines = 4,
+                    shape = RoundedCornerShape(20.dp),
+                    colors = appTextFieldColors(),
+                )
             }
 
             Spacer(Modifier.height(14.dp))
@@ -619,26 +680,30 @@ private fun EmblemSelector(
     val emblemDescription = stringResource(R.string.add_emblem_select)
 
     Box(
-        modifier = Modifier
-            .size(70.dp)
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.primaryContainer)
-            .clickable(onClick = onClick)
-            .semantics {
-                role = Role.Button
-                contentDescription = emblemDescription
-            },
-        contentAlignment = Alignment.Center,
+        modifier = Modifier.size(70.dp),
     ) {
-        if (image != null) {
-            Image(
-                bitmap = image,
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop,
-            )
-        } else {
-            Text(text = emoji, fontSize = 32.sp)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primaryContainer)
+                .clickable(onClick = onClick)
+                .semantics {
+                    role = Role.Button
+                    contentDescription = emblemDescription
+                },
+            contentAlignment = Alignment.Center,
+        ) {
+            if (image != null) {
+                Image(
+                    bitmap = image,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop,
+                )
+            } else {
+                Text(text = emoji, fontSize = 32.sp)
+            }
         }
 
         Box(
@@ -899,3 +964,26 @@ private fun appTextFieldColors() = OutlinedTextFieldDefaults.colors(
     unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
     cursorColor = MaterialTheme.colorScheme.primary,
 )
+
+/**
+ * Подбирает формат кода по его содержимому: числовые длины выбирают EAN/UPC,
+ * остальной текст — Code 128, а всё, что не кодируется линейно, — QR-код.
+ */
+private fun detectCodeFormat(raw: String): CardFormat {
+    val code = raw.trim()
+    if (code.isEmpty()) return CardFormat.QR_CODE
+
+    val candidates = buildList {
+        if (code.all(Char::isDigit)) {
+            when (code.length) {
+                8 -> add(CardFormat.EAN_8)
+                12 -> add(CardFormat.UPC_A)
+                13 -> add(CardFormat.EAN_13)
+            }
+        }
+        add(CardFormat.CODE_128)
+        add(CardFormat.CODE_39)
+        add(CardFormat.QR_CODE)
+    }
+    return candidates.firstOrNull { BarcodeRenderer.isValid(code, it) } ?: CardFormat.QR_CODE
+}

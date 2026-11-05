@@ -28,7 +28,7 @@
     <!-- Экран карты -->
     <string name="detail_copy_code">Копировать код</string>
     <string name="detail_delete_card">Удалить карту</string>
-    <string name="detail_refresh_code">Обновить код</string>
+    <string name="detail_note_label">Примечание</string>
     <string name="detail_code_hint">Покажите код на кассе. Он каждый раз создаётся из данных карты.</string>
     <string name="detail_storage_note">Данные хранятся только на этом устройстве</string>
     <string name="detail_delete_title">Удалить карту?</string>
@@ -45,8 +45,11 @@
     <string name="add_store_name_placeholder">Например, «Пятёрочка»</string>
     <string name="add_section_code">Код карты</string>
     <string name="add_code_label">Номер или данные кода</string>
-    <string name="add_code_format">Формат кода</string>
-    <string name="add_scan_code">Сканировать код камерой</string>
+    <string name="add_scan_camera">Камера</string>
+    <string name="add_scan_photo">Из фото</string>
+    <string name="add_section_note">Примечание</string>
+    <string name="add_note_label">Примечание (необязательно)</string>
+    <string name="add_note_placeholder">Например, ПИН-код или срок действия</string>
     <string name="add_section_appearance">Оформление</string>
     <string name="add_card_color">Цвет карты</string>
     <string name="add_card_color_description">Цвет карты %1$d</string>
@@ -65,6 +68,7 @@
     <string name="error_code_required">Введите или отсканируйте код карты</string>
     <string name="error_code_format">Код не подходит для формата %1$s. Проверьте данные.</string>
     <string name="error_save_card">Не удалось сохранить карту. Попробуйте ещё раз.</string>
+    <string name="error_photo_scan">Не удалось распознать код на фотографии. Попробуйте другое изображение.</string>
     <string name="message_code_scanned">Код распознан: %1$s</string>
 
     <!-- Сканер -->

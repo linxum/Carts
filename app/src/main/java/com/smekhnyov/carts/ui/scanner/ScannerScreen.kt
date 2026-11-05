@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -498,6 +500,8 @@ private class BarcodeAnalyzer(
 
     private val scanner: BarcodeScanner = BarcodeScanning.getClient()
     private val delivered = AtomicBoolean(false)
+    private val closed = AtomicBoolean(false)
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     @OptIn(ExperimentalGetImage::class)
     override fun analyze(imageProxy: ImageProxy) {
@@ -517,9 +521,16 @@ private class BarcodeAnalyzer(
         scanner.process(inputImage)
             .addOnSuccessListener { barcodes ->
                 val barcode = barcodes.firstOrNull { !it.rawValue.isNullOrBlank() }
-                val value = barcode?.rawValue
-                if (value != null && delivered.compareAndSet(false, true)) {
-                    onBarcode(value, barcode.format)
+                    ?: return@addOnSuccessListener
+                val value = barcode.rawValue ?: return@addOnSuccessListener
+                if (delivered.compareAndSet(false, true)) {
+                    // Небольшая пауза, чтобы кадр успел «зафиксироваться» на экране.
+                    mainHandler.postDelayed(
+                        {
+                            if (!closed.get()) onBarcode(value, barcode.format)
+                        },
+                        SCAN_DELAY_MS,
+                    )
                 }
             }
             .addOnCompleteListener {
@@ -528,11 +539,15 @@ private class BarcodeAnalyzer(
     }
 
     fun close() {
+        closed.set(true)
+        mainHandler.removeCallbacksAndMessages(null)
         scanner.close()
     }
 }
 
-private fun Int.toCardFormat(): CardFormat = when (this) {
+private const val SCAN_DELAY_MS = 500L
+
+internal fun Int.toCardFormat(): CardFormat = when (this) {
     Barcode.FORMAT_QR_CODE -> CardFormat.QR_CODE
     Barcode.FORMAT_DATA_MATRIX -> CardFormat.DATA_MATRIX
     Barcode.FORMAT_AZTEC -> CardFormat.AZTEC

@@ -34,15 +34,13 @@ private sealed interface BarcodeState {
 }
 
 /**
- * Каждый раз отрисовывает код из строки [content] в битмап. Ключ [regenerationKey]
- * позволяет принудительно перегенерировать изображение (кнопка «Обновить»).
+ * Каждый раз отрисовывает код из строки [content] в битмап.
  */
 @Composable
 fun BarcodeView(
     content: String,
     format: CardFormat,
     modifier: Modifier = Modifier,
-    regenerationKey: Int = 0,
 ) {
     BoxWithConstraints(modifier = modifier, contentAlignment = Alignment.Center) {
         val density = LocalDensity.current
@@ -55,7 +53,6 @@ fun BarcodeView(
             initialValue = BarcodeState.Loading,
             content,
             format,
-            regenerationKey,
             targetWidth,
             targetHeight,
         ) {

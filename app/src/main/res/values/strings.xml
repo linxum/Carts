@@ -28,7 +28,7 @@
     <!-- Экран карты -->
     <string name="detail_copy_code">Copy code</string>
     <string name="detail_delete_card">Delete card</string>
-    <string name="detail_refresh_code">Refresh code</string>
+    <string name="detail_note_label">Note</string>
     <string name="detail_code_hint">Show the code at the checkout. It is generated from the card data each time.</string>
     <string name="detail_storage_note">Data is stored only on this device</string>
     <string name="detail_delete_title">Delete card?</string>
@@ -45,8 +45,11 @@
     <string name="add_store_name_placeholder">For example, “Walmart”</string>
     <string name="add_section_code">Card code</string>
     <string name="add_code_label">Number or code data</string>
-    <string name="add_code_format">Code format</string>
-    <string name="add_scan_code">Scan code with camera</string>
+    <string name="add_scan_camera">Camera</string>
+    <string name="add_scan_photo">From photo</string>
+    <string name="add_section_note">Note</string>
+    <string name="add_note_label">Note (optional)</string>
+    <string name="add_note_placeholder">For example, a PIN code or expiry date</string>
     <string name="add_section_appearance">Appearance</string>
     <string name="add_card_color">Card color</string>
     <string name="add_card_color_description">Card color %1$d</string>
@@ -65,6 +68,7 @@
     <string name="error_code_required">Enter or scan the card code</string>
     <string name="error_code_format">The code does not match the %1$s format. Check the data.</string>
     <string name="error_save_card">Could not save the card. Try again.</string>
+    <string name="error_photo_scan">Could not recognize a code in the photo. Try another image.</string>
     <string name="message_code_scanned">Code recognized: %1$s</string>
 
     <!-- Сканер -->

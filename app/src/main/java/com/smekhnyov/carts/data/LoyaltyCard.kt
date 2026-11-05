@@ -12,6 +12,8 @@ data class LoyaltyCard(
     val emblemImagePath: String?,
     val createdAt: Long,
     val position: Int = 0,
+    /** Необязательное примечание, например ПИН-код или срок действия. */
+    val note: String? = null,
 ) {
     val shortCode: String
         get() = if (code.length > 4) "•••• ${code.takeLast(4)}" else code
@@ -29,4 +31,5 @@ data class CardDraft(
     /** Новый файл из системного выбора фото. Копируется в приватное хранилище при сохранении. */
     val newEmblemUri: Uri? = null,
     val removeEmblemImage: Boolean = false,
+    val note: String = "",
 )

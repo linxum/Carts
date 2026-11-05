@@ -151,7 +151,7 @@ fun WalletScreen(
         ) {
             when {
                 isLoading -> LoadingWallet()
-                cards.isEmpty() -> EmptyWallet(onAddCard = onAddCard)
+                cards.isEmpty() -> EmptyWallet()
                 else -> WalletStack(
                     cards = cards,
                     onCardClick = onCardClick,
@@ -186,7 +186,7 @@ private fun LoadingWallet() {
 }
 
 @Composable
-private fun EmptyWallet(onAddCard: () -> Unit) {
+private fun EmptyWallet() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -221,16 +221,6 @@ private fun EmptyWallet(onAddCard: () -> Unit) {
             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
             modifier = Modifier.padding(horizontal = 16.dp),
         )
-        Spacer(Modifier.height(24.dp))
-        Button(onClick = onAddCard) {
-            Icon(
-                imageVector = Icons.Filled.Add,
-                contentDescription = null,
-                modifier = Modifier.size(20.dp),
-            )
-            Spacer(Modifier.width(8.dp))
-            Text(stringResource(R.string.wallet_add_card))
-        }
     }
 }
 

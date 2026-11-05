@@ -49,6 +49,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -135,6 +137,15 @@ fun AddCardScreen(
     var formatName by rememberSaveable(initialKey) {
         mutableStateOf((initialCard?.format ?: CardFormat.QR_CODE).name)
     }
+    var formatAuto by rememberSaveable(initialKey) {
+        mutableStateOf(
+            initialCard == null ||
+                detectCodeFormat(initialCard.code) == initialCard.format,
+        )
+    }
+    var codeFromScan by rememberSaveable(initialKey) {
+        mutableStateOf(false)
+    }
     var emoji by rememberSaveable(initialKey) {
         mutableStateOf(initialCard?.emblemEmoji ?: DefaultEmblem)
     }
@@ -162,6 +173,19 @@ fun AddCardScreen(
 
     val format = CardFormat.entries.firstOrNull { it.name == formatName } ?: CardFormat.QR_CODE
     val isEditing = initialCard != null
+
+    val onCodeChange: (String) -> Unit = { value ->
+        code = value
+        // Ручное редактирование снимает блокировку формата, полученного сканером.
+        if (codeFromScan) {
+            codeFromScan = false
+            formatAuto = true
+        }
+        if (formatAuto) {
+            formatName = detectCodeFormat(value).name
+        }
+        errorMessage = null
+    }
 
     val photoPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
@@ -207,6 +231,8 @@ fun AddCardScreen(
                     }
                     code = value
                     formatName = detectedFormat.name
+                    codeFromScan = true
+                    formatAuto = false
                     errorMessage = null
                     onMessage(
                         context.getString(
@@ -379,11 +405,7 @@ fun AddCardScreen(
             FormSection(title = stringResource(R.string.add_section_code)) {
                 OutlinedTextField(
                     value = code,
-                    onValueChange = {
-                        code = it
-                        formatName = detectCodeFormat(it).name
-                        errorMessage = null
-                    },
+                    onValueChange = onCodeChange,
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text(stringResource(R.string.add_code_label)) },
                     placeholder = { Text(stringResource(format.placeholderRes)) },
@@ -398,10 +420,7 @@ fun AddCardScreen(
                     trailingIcon = {
                         if (code.isNotEmpty()) {
                             IconButton(
-                                onClick = {
-                                    code = ""
-                                    errorMessage = null
-                                },
+                                onClick = { onCodeChange("") },
                             ) {
                                 Icon(Icons.Filled.Clear, contentDescription = stringResource(R.string.action_clear))
                             }
@@ -449,6 +468,91 @@ fun AddCardScreen(
                         }
                         Spacer(Modifier.width(8.dp))
                         Text(stringResource(R.string.add_scan_photo))
+                    }
+                }
+
+                AnimatedVisibility(visible = !codeFromScan) {
+                    Column {
+                        Spacer(Modifier.height(14.dp))
+                        Text(
+                            text = stringResource(R.string.add_code_format),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Spacer(Modifier.height(8.dp))
+
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            item(key = "auto") {
+                                FilterChip(
+                                    selected = formatAuto,
+                                    onClick = {
+                                        formatAuto = true
+                                        formatName = detectCodeFormat(code).name
+                                        errorMessage = null
+                                    },
+                                    label = { Text(stringResource(R.string.format_auto)) },
+                                    leadingIcon = if (formatAuto) {
+                                        {
+                                            Icon(
+                                                Icons.Filled.Check,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(16.dp),
+                                            )
+                                        }
+                                    } else {
+                                        null
+                                    },
+                                    shape = CircleShape,
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    ),
+                                )
+                            }
+                            items(CardFormat.pickerOrder, key = { it.name }) { item ->
+                                val selected = !formatAuto && format == item
+                                FilterChip(
+                                    selected = selected,
+                                    onClick = {
+                                        formatAuto = false
+                                        formatName = item.name
+                                        errorMessage = null
+                                    },
+                                    label = { Text(item.shortLabel) },
+                                    leadingIcon = if (selected) {
+                                        {
+                                            Icon(
+                                                Icons.Filled.Check,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(16.dp),
+                                            )
+                                        }
+                                    } else {
+                                        null
+                                    },
+                                    shape = CircleShape,
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    ),
+                                )
+                            }
+                        }
+
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            text = if (formatAuto) {
+                                stringResource(R.string.add_format_auto_hint, format.shortLabel)
+                            } else {
+                                stringResource(R.string.add_format_manual_hint)
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
                 }
             }
@@ -628,6 +732,8 @@ fun AddCardScreen(
                 onResult = { value, scannedFormat ->
                     code = value
                     formatName = scannedFormat.name
+                    codeFromScan = true
+                    formatAuto = false
                     scannerOpen = false
                     errorMessage = null
                     onMessage(

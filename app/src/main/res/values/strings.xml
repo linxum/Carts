@@ -47,6 +47,10 @@
     <string name="add_code_label">Number or code data</string>
     <string name="add_scan_camera">Camera</string>
     <string name="add_scan_photo">From photo</string>
+    <string name="add_code_format">Code format</string>
+    <string name="format_auto">Auto</string>
+    <string name="add_format_auto_hint">Detected automatically: %1$s</string>
+    <string name="add_format_manual_hint">Format selected manually.</string>
     <string name="add_section_note">Note</string>
     <string name="add_note_label">Note (optional)</string>
     <string name="add_note_placeholder">For example, a PIN code or expiry date</string>

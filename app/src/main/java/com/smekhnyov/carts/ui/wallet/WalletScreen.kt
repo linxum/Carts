@@ -1,11 +1,15 @@
 package com.smekhnyov.carts.ui.wallet
 
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
@@ -15,12 +19,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,46 +30,47 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FilledTonalIconButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.luminance
-import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -78,6 +81,8 @@ import com.smekhnyov.carts.ui.components.AppIcons
 import com.smekhnyov.carts.ui.components.EmblemBadge
 import com.smekhnyov.carts.ui.components.SystemBars
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -87,10 +92,8 @@ fun WalletScreen(
     onCardClick: (LoyaltyCard) -> Unit,
     onAddCard: () -> Unit,
     onOpenSettings: () -> Unit,
-    onMoveCard: (cardId: Long, direction: Int) -> Unit,
+    onMoveCard: (cardId: Long, targetIndex: Int) -> Unit,
 ) {
-    var showReorderSheet by rememberSaveable { mutableStateOf(false) }
-
     SystemBars(
         background = MaterialTheme.colorScheme.background,
         darkIcons = MaterialTheme.colorScheme.background.luminance() > 0.55f,
@@ -107,14 +110,6 @@ fun WalletScreen(
                     )
                 },
                 actions = {
-                    if (cards.size > 1) {
-                        IconButton(onClick = { showReorderSheet = true }) {
-                            Icon(
-                                imageVector = AppIcons.Sort,
-                                contentDescription = stringResource(R.string.wallet_reorder),
-                            )
-                        }
-                    }
                     IconButton(onClick = onOpenSettings) {
                         Icon(
                             imageVector = Icons.Filled.Settings,
@@ -152,21 +147,23 @@ fun WalletScreen(
             when {
                 isLoading -> LoadingWallet()
                 cards.isEmpty() -> EmptyWallet()
-                else -> WalletStack(
-                    cards = cards,
-                    onCardClick = onCardClick,
-                    onLongPress = { showReorderSheet = true },
-                )
+                else -> {
+                    if (cards.size > 1) {
+                        Text(
+                            text = stringResource(R.string.wallet_reorder_hint),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(bottom = 14.dp),
+                        )
+                    }
+                    WalletStack(
+                        cards = cards,
+                        onCardClick = onCardClick,
+                        onMoveCard = onMoveCard,
+                    )
+                }
             }
         }
-    }
-
-    if (showReorderSheet && cards.isNotEmpty()) {
-        ReorderSheet(
-            cards = cards,
-            onMoveCard = onMoveCard,
-            onDismiss = { showReorderSheet = false },
-        )
     }
 }
 
@@ -228,38 +225,143 @@ private fun EmptyWallet() {
 private fun WalletStack(
     cards: List<LoyaltyCard>,
     onCardClick: (LoyaltyCard) -> Unit,
-    onLongPress: () -> Unit,
+    onMoveCard: (cardId: Long, targetIndex: Int) -> Unit,
 ) {
     val density = LocalDensity.current
+    val haptics = LocalHapticFeedback.current
+    val scope = rememberCoroutineScope()
+
     val peek = 84.dp
     val cardHeight = 200.dp
+    val peekPx = with(density) { peek.toPx() }
 
-    Layout(
-        content = {
-            cards.forEachIndexed { index, card ->
-                WalletCard(
-                    card = card,
-                    index = index,
-                    onClick = { onCardClick(card) },
-                    onLongClick = onLongPress,
-                    modifier = Modifier.zIndex(index + 1f),
-                )
-            }
-        },
-        modifier = Modifier.fillMaxWidth(),
-    ) { measurables, constraints ->
-        val width = constraints.maxWidth
-        val placeables = measurables.map { measurable ->
-            measurable.measure(Constraints.fixedWidth(width))
+    // Local copy lets the reordered stack stay in place until the database emits the new order.
+    var localCards by remember { mutableStateOf(cards) }
+    var draggingId by remember { mutableStateOf<Long?>(null) }
+    var draggingIndex by remember { mutableIntStateOf(-1) }
+    var targetIndex by remember { mutableIntStateOf(-1) }
+    var dragOffset by remember { mutableFloatStateOf(0f) }
+    var settling by remember { mutableStateOf(false) }
+
+    LaunchedEffect(cards) {
+        if (draggingId == null) {
+            localCards = cards
         }
-        val peekPx = with(density) { peek.roundToPx() }
-        val cardHeightPx = with(density) { cardHeight.roundToPx() }
-        val height = cardHeightPx + peekPx * (placeables.size - 1).coerceAtLeast(0)
+    }
 
-        layout(width, height) {
-            placeables.forEachIndexed { index, placeable ->
-                placeable.placeRelative(0, index * peekPx)
+    val startDrag: (LoyaltyCard) -> Unit = { card ->
+        val index = localCards.indexOfFirst { it.id == card.id }
+        if (index >= 0 && !settling) {
+            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+            draggingId = card.id
+            draggingIndex = index
+            targetIndex = index
+            dragOffset = 0f
+        }
+    }
+
+    val dragCard: (Float) -> Unit = { delta ->
+        if (draggingId != null && !settling && draggingIndex >= 0) {
+            val minOffset = -draggingIndex * peekPx
+            val maxOffset = (localCards.lastIndex - draggingIndex) * peekPx
+            dragOffset = (dragOffset + delta).coerceIn(minOffset, maxOffset)
+            targetIndex = (draggingIndex + (dragOffset / peekPx).roundToInt())
+                .coerceIn(0, localCards.lastIndex)
+        }
+    }
+
+    val endDrag: () -> Unit = {
+        val cardId = draggingId
+        if (cardId == null || settling || draggingIndex < 0) {
+            // Nothing to settle.
+        } else {
+            val from = draggingIndex
+            val to = targetIndex.coerceIn(0, localCards.lastIndex)
+            settling = true
+            scope.launch {
+                animate(
+                    initialValue = dragOffset,
+                    targetValue = (to - from) * peekPx,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessMedium,
+                    ),
+                ) { value, _ -> dragOffset = value }
+
+                val reordered = localCards.toMutableList().apply {
+                    val card = removeAt(from)
+                    add(to, card)
+                }
+                localCards = reordered
+                draggingId = null
+                draggingIndex = -1
+                targetIndex = -1
+                dragOffset = 0f
+                settling = false
+
+                if (to != from) {
+                    onMoveCard(cardId, to)
+                }
             }
+        }
+    }
+
+    val cancelDrag: () -> Unit = {
+        if (!settling) {
+            draggingId = null
+            draggingIndex = -1
+            targetIndex = -1
+            dragOffset = 0f
+        }
+    }
+
+    val stackHeight = cardHeight + peek * (localCards.size - 1).coerceAtLeast(0)
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(stackHeight),
+    ) {
+        localCards.forEachIndexed { index, card ->
+            val isDragging = card.id == draggingId
+            val slot = when {
+                draggingId == null -> index
+                isDragging -> index
+                draggingIndex < targetIndex && index in (draggingIndex + 1)..targetIndex -> index - 1
+                draggingIndex > targetIndex && index in targetIndex until draggingIndex -> index + 1
+                else -> index
+            }
+            val animatedSlot by animateIntAsState(
+                targetValue = slot,
+                animationSpec = if (isDragging) {
+                    snap()
+                } else {
+                    spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessMediumLow,
+                    )
+                },
+                label = "cardSlot$index",
+            )
+            val yPx = animatedSlot * peekPx + if (isDragging) dragOffset else 0f
+
+            WalletCard(
+                card = card,
+                index = index,
+                isDragging = isDragging,
+                canMoveUp = index > 0,
+                canMoveDown = index < localCards.lastIndex,
+                onMoveUp = { onMoveCard(card.id, index - 1) },
+                onMoveDown = { onMoveCard(card.id, index + 1) },
+                onDragStart = { startDrag(card) },
+                onDrag = dragCard,
+                onDragEnd = endDrag,
+                onDragCancel = cancelDrag,
+                onClick = { onCardClick(card) },
+                modifier = Modifier
+                    .offset { IntOffset(0, yPx.roundToInt()) }
+                    .zIndex(if (isDragging) 100f else index.toFloat()),
+            )
         }
     }
 }
@@ -269,8 +371,16 @@ private fun WalletStack(
 private fun WalletCard(
     card: LoyaltyCard,
     index: Int,
+    isDragging: Boolean,
+    canMoveUp: Boolean,
+    canMoveDown: Boolean,
+    onMoveUp: () -> Unit,
+    onMoveDown: () -> Unit,
+    onDragStart: () -> Unit,
+    onDrag: (Float) -> Unit,
+    onDragEnd: () -> Unit,
+    onDragCancel: () -> Unit,
     onClick: () -> Unit,
-    onLongClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val palette = paletteFor(card.paletteIndex, card.customColor)
@@ -300,12 +410,40 @@ private fun WalletCard(
         label = "cardEntry",
     )
 
+    val moveUpLabel = stringResource(R.string.wallet_move_up)
+    val moveDownLabel = stringResource(R.string.wallet_move_down)
+
+    val currentOnDragStart by rememberUpdatedState(onDragStart)
+    val currentOnDrag by rememberUpdatedState(onDrag)
+    val currentOnDragEnd by rememberUpdatedState(onDragEnd)
+    val currentOnDragCancel by rememberUpdatedState(onDragCancel)
+
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .height(200.dp)
+            .semantics {
+                customActions = buildList {
+                    if (canMoveUp) {
+                        add(
+                            CustomAccessibilityAction(moveUpLabel) {
+                                onMoveUp()
+                                true
+                            },
+                        )
+                    }
+                    if (canMoveDown) {
+                        add(
+                            CustomAccessibilityAction(moveDownLabel) {
+                                onMoveDown()
+                                true
+                            },
+                        )
+                    }
+                }
+            }
             .graphicsLayer {
-                val scale = pressScale * (0.96f + 0.04f * entry)
+                val scale = pressScale * (0.96f + 0.04f * entry) * (if (isDragging) 1.03f else 1f)
                 scaleX = scale
                 scaleY = scale
                 alpha = entry
@@ -315,13 +453,22 @@ private fun WalletCard(
                 interactionSource = interaction,
                 indication = ripple(color = palette.content.copy(alpha = 0.12f)),
                 role = Role.Button,
-                onLongClickLabel = stringResource(R.string.wallet_reorder),
-                onLongClick = onLongClick,
                 onClick = onClick,
-            ),
+            )
+            .pointerInput(Unit) {
+                detectDragGesturesAfterLongPress(
+                    onDragStart = { currentOnDragStart() },
+                    onDragEnd = { currentOnDragEnd() },
+                    onDragCancel = { currentOnDragCancel() },
+                    onDrag = { change, dragAmount ->
+                        change.consume()
+                        currentOnDrag(dragAmount.y)
+                    },
+                )
+            },
         shape = shape,
         color = palette.container,
-        shadowElevation = 1.dp,
+        shadowElevation = if (isDragging) 14.dp else 1.dp,
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
@@ -403,104 +550,6 @@ private fun WalletCard(
                         )
                     }
                 }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun ReorderSheet(
-    cards: List<LoyaltyCard>,
-    onMoveCard: (cardId: Long, direction: Int) -> Unit,
-    onDismiss: () -> Unit,
-) {
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp)
-                .padding(bottom = 24.dp),
-        ) {
-            Text(
-                text = stringResource(R.string.wallet_reorder_title),
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-            Spacer(Modifier.height(6.dp))
-            Text(
-                text = stringResource(R.string.wallet_reorder_hint),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Spacer(Modifier.height(16.dp))
-
-            LazyColumn(modifier = Modifier.heightIn(max = 420.dp)) {
-                itemsIndexed(cards, key = { _, card -> card.id }) { index, card ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        EmblemBadge(
-                            emoji = card.emblemEmoji,
-                            imagePath = card.emblemImagePath,
-                            size = 42.dp,
-                            background = MaterialTheme.colorScheme.surfaceContainerHigh,
-                            contentColor = MaterialTheme.colorScheme.onSurface,
-                            borderColor = MaterialTheme.colorScheme.outlineVariant,
-                        )
-                        Spacer(Modifier.width(12.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = card.name,
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                            Text(
-                                text = stringResource(card.format.labelRes),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                        FilledTonalIconButton(
-                            onClick = { onMoveCard(card.id, -1) },
-                            enabled = index > 0,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.KeyboardArrowUp,
-                                contentDescription = stringResource(R.string.wallet_move_up),
-                            )
-                        }
-                        Spacer(Modifier.width(4.dp))
-                        FilledTonalIconButton(
-                            onClick = { onMoveCard(card.id, 1) },
-                            enabled = index < cards.lastIndex,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.KeyboardArrowDown,
-                                contentDescription = stringResource(R.string.wallet_move_down),
-                            )
-                        }
-                    }
-                    if (index != cards.lastIndex) {
-                        HorizontalDivider()
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(20.dp))
-            Button(
-                onClick = onDismiss,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(stringResource(R.string.action_done))
             }
         }
     }

@@ -16,12 +16,10 @@
     <!-- Кошелёк -->
     <string name="wallet_title">Кошелёк</string>
     <string name="wallet_add_card">Добавить карту</string>
-    <string name="wallet_reorder">Изменить порядок карт</string>
     <string name="wallet_empty_title">Пока ни одной карты</string>
     <string name="wallet_empty_text">Добавьте бонусную карту, чтобы её код всегда был под рукой.</string>
     <string name="wallet_code_label">КОД</string>
-    <string name="wallet_reorder_title">Порядок карт</string>
-    <string name="wallet_reorder_hint">Первая карта находится выше всех в стопке.</string>
+    <string name="wallet_reorder_hint">Удерживайте карту и перетащите её на нужное место.</string>
     <string name="wallet_move_up">Переместить выше</string>
     <string name="wallet_move_down">Переместить ниже</string>
 

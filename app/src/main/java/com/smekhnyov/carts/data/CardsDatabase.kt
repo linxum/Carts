@@ -166,15 +166,18 @@ internal class CardsDatabase(context: Context) :
         ) > 0
     }
 
-    fun move(cardId: Long, direction: Int): Boolean {
-        if (direction == 0) return false
+    /**
+     * Переставляет карту на заданную позицию, сдвигая остальные.
+     * Позиция ограничивается допустимым диапазоном.
+     */
+    fun moveTo(cardId: Long, targetIndex: Int): Boolean {
         val db = writableDatabase
         db.beginTransaction()
         try {
-            val entries = mutableListOf<Pair<Long, Int>>()
+            val ids = mutableListOf<Long>()
             db.query(
                 TABLE_CARDS,
-                arrayOf(COLUMN_ID, COLUMN_POSITION),
+                arrayOf(COLUMN_ID),
                 null,
                 null,
                 null,
@@ -182,18 +185,23 @@ internal class CardsDatabase(context: Context) :
                 "$COLUMN_POSITION ASC, $COLUMN_ID ASC",
             ).use { cursor ->
                 while (cursor.moveToNext()) {
-                    entries += cursor.getLong(0) to cursor.getInt(1)
+                    ids += cursor.getLong(0)
                 }
             }
 
-            val index = entries.indexOfFirst { it.first == cardId }
-            val target = index + direction
-            if (index < 0 || target !in entries.indices) return false
+            val index = ids.indexOf(cardId)
+            if (index < 0) return false
 
-            val (firstId, firstPosition) = entries[index]
-            val (secondId, secondPosition) = entries[target]
-            updatePosition(db, firstId, secondPosition)
-            updatePosition(db, secondId, firstPosition)
+            val target = targetIndex.coerceIn(0, ids.lastIndex)
+            if (index == target) return false
+
+            val reordered = ids.toMutableList().apply {
+                removeAt(index)
+                add(target, cardId)
+            }
+            reordered.forEachIndexed { position, id ->
+                updatePosition(db, id, position)
+            }
             db.setTransactionSuccessful()
             return true
         } finally {

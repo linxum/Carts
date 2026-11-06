@@ -16,12 +16,10 @@
     <!-- Кошелёк -->
     <string name="wallet_title">Wallet</string>
     <string name="wallet_add_card">Add card</string>
-    <string name="wallet_reorder">Reorder cards</string>
     <string name="wallet_empty_title">No cards yet</string>
     <string name="wallet_empty_text">Add a loyalty card so its code is always at hand.</string>
     <string name="wallet_code_label">CODE</string>
-    <string name="wallet_reorder_title">Card order</string>
-    <string name="wallet_reorder_hint">The first card is on top of the stack.</string>
+    <string name="wallet_reorder_hint">Hold a card and drag it to the desired position.</string>
     <string name="wallet_move_up">Move up</string>
     <string name="wallet_move_down">Move down</string>
 

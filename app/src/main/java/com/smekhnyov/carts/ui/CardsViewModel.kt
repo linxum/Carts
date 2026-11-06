@@ -36,9 +36,9 @@ class CardsViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun moveCard(cardId: Long, direction: Int) {
+    fun moveCard(cardId: Long, targetIndex: Int) {
         viewModelScope.launch {
-            runCatching { repository.move(cardId, direction) }
+            runCatching { repository.moveTo(cardId, targetIndex) }
         }
     }
 

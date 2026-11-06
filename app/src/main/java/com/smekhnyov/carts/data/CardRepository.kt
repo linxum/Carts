@@ -79,9 +79,9 @@ class CardRepository(context: Context) {
         refreshNow()
     }
 
-    /** Меняет карту местами с соседней. Направление: -1 — выше, +1 — ниже. */
-    suspend fun move(cardId: Long, direction: Int): Boolean = withContext(Dispatchers.IO) {
-        val moved = database.move(cardId, direction)
+    /** Переставляет карту на заданную позицию (0 — верх стопки). */
+    suspend fun moveTo(cardId: Long, targetIndex: Int): Boolean = withContext(Dispatchers.IO) {
+        val moved = database.moveTo(cardId, targetIndex)
         if (moved) refreshNow()
         moved
     }

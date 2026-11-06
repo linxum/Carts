@@ -40,9 +40,6 @@
     <string name="add_title_edit">Изменить карту</string>
     <string name="add_subtitle_new">Добавьте карту в свой кошелёк</string>
     <string name="add_subtitle_edit">Обновите данные карты</string>
-    <string name="add_section_store">Магазин</string>
-    <string name="add_store_name_label">Название магазина</string>
-    <string name="add_store_name_placeholder">Например, «Пятёрочка»</string>
     <string name="add_section_code">Код карты</string>
     <string name="add_code_label">Номер или данные кода</string>
     <string name="add_scan_camera">Камера</string>
@@ -54,12 +51,11 @@
     <string name="add_section_note">Примечание</string>
     <string name="add_note_label">Примечание (необязательно)</string>
     <string name="add_note_placeholder">Например, ПИН-код или срок действия</string>
-    <string name="add_section_appearance">Оформление</string>
-    <string name="add_card_color">Цвет карты</string>
     <string name="add_card_color_description">Цвет карты %1$d</string>
-    <string name="add_color_custom">Любой цвет</string>
+    <string name="add_card_color_change">Изменить цвет карты</string>
     <string name="add_color_custom_title">Цвет карты</string>
-    <string name="add_color_custom_text">Выберите любой оттенок с помощью тона, насыщенности и яркости.</string>
+    <string name="add_color_custom_text">Выберите готовый цвет или подберите любой оттенок с помощью тона, насыщенности и яркости.</string>
+    <string name="add_color_presets">Готовые цвета</string>
     <string name="add_color_hue">Тон</string>
     <string name="add_color_saturation">Насыщенность</string>
     <string name="add_color_brightness">Яркость</string>
@@ -71,6 +67,7 @@
     <string name="add_preview_store_name">Название магазина</string>
     <string name="add_preview_loyalty_card">Бонусная карта</string>
     <string name="add_preview_empty_code">Здесь появится сгенерированный код</string>
+    <string name="add_preview_edit_hint">Нажмите на название или эмблему, чтобы изменить их, а 🎨 — чтобы сменить цвет карты.</string>
     <string name="add_emblem_title">Эмблема карты</string>
     <string name="add_emblem_text">Выберите эмодзи или загрузите логотип магазина из галереи.</string>
     <string name="add_emblem_select">Выбрать эмблему карты</string>

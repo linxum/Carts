@@ -36,6 +36,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -81,6 +82,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
@@ -107,7 +109,6 @@ import com.smekhnyov.carts.data.LoyaltyCard
 import com.smekhnyov.carts.ui.cards.CardPaletteCount
 import com.smekhnyov.carts.ui.cards.DefaultEmblem
 import com.smekhnyov.carts.ui.cards.EmblemPresets
-import com.smekhnyov.carts.ui.cards.customPalette
 import com.smekhnyov.carts.ui.cards.paletteFor
 import com.smekhnyov.carts.ui.cards.rememberEmblemImage
 import com.smekhnyov.carts.ui.cards.rememberPickedImage
@@ -378,6 +379,10 @@ fun AddCardScreen(
 
             DraftPreviewCard(
                 name = name,
+                onNameChange = {
+                    name = it
+                    errorMessage = null
+                },
                 code = code,
                 format = format,
                 paletteIndex = paletteIndex,
@@ -385,36 +390,19 @@ fun AddCardScreen(
                 emoji = emoji,
                 imagePath = imagePath,
                 pickedUri = pickedUri,
+                onEmblemClick = { showEmblemSheet = true },
+                onColorClick = { showColorSheet = true },
             )
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = stringResource(R.string.add_preview_edit_hint),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 4.dp),
+            )
 
-            FormSection(title = stringResource(R.string.add_section_store)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    EmblemSelector(
-                        emoji = emoji,
-                        imagePath = imagePath,
-                        pickedUri = pickedUri,
-                        onClick = { showEmblemSheet = true },
-                    )
-                    Spacer(Modifier.width(14.dp))
-                    OutlinedTextField(
-                        value = name,
-                        onValueChange = {
-                            name = it
-                            errorMessage = null
-                        },
-                        modifier = Modifier.weight(1f),
-                        label = { Text(stringResource(R.string.add_store_name_label)) },
-                        placeholder = { Text(stringResource(R.string.add_store_name_placeholder)) },
-                        singleLine = true,
-                        shape = RoundedCornerShape(20.dp),
-                        colors = appTextFieldColors(),
-                    )
-                }
-            }
-
-            Spacer(Modifier.height(14.dp))
+            Spacer(Modifier.height(18.dp))
 
             FormSection(title = stringResource(R.string.add_section_code)) {
                 OutlinedTextField(
@@ -587,114 +575,6 @@ fun AddCardScreen(
                 )
             }
 
-            Spacer(Modifier.height(14.dp))
-
-            FormSection(title = stringResource(R.string.add_section_appearance)) {
-                Text(
-                    text = stringResource(R.string.add_card_color),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Spacer(Modifier.height(12.dp))
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    items(CardPaletteCount) { index ->
-                        val palette = paletteFor(index)
-                        val selected = customColorArgb == 0L && paletteIndex == index
-                        val colorDescription = stringResource(
-                            R.string.add_card_color_description,
-                            index + 1,
-                        )
-                        Box(
-                            modifier = Modifier
-                                .size(42.dp)
-                                .clip(CircleShape)
-                                .then(
-                                    if (selected) {
-                                        Modifier.border(
-                                            2.dp,
-                                            MaterialTheme.colorScheme.onSurface,
-                                            CircleShape,
-                                        )
-                                    } else {
-                                        Modifier
-                                    },
-                                )
-                                .padding(5.dp)
-                                .clip(CircleShape)
-                                .background(palette.container)
-                                .clickable {
-                                    paletteIndex = index
-                                    customColorArgb = 0L
-                                }
-                                .semantics {
-                                    role = Role.RadioButton
-                                    contentDescription = colorDescription
-                                },
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            if (selected) {
-                                Icon(
-                                    imageVector = Icons.Filled.Check,
-                                    contentDescription = null,
-                                    tint = palette.content,
-                                    modifier = Modifier.size(18.dp),
-                                )
-                            }
-                        }
-                    }
-                    item(key = "custom") {
-                        val customSelected = customColorArgb != 0L
-                        val customPreview = if (customSelected) {
-                            Color(customColorArgb)
-                        } else {
-                            MaterialTheme.colorScheme.surfaceContainerHigh
-                        }
-                        val customContent = if (customSelected) {
-                            customPalette(customPreview).content
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        }
-                        val colorDescription = stringResource(R.string.add_color_custom)
-                        Box(
-                            modifier = Modifier
-                                .size(42.dp)
-                                .clip(CircleShape)
-                                .then(
-                                    if (customSelected) {
-                                        Modifier.border(
-                                            2.dp,
-                                            MaterialTheme.colorScheme.onSurface,
-                                            CircleShape,
-                                        )
-                                    } else {
-                                        Modifier
-                                    },
-                                )
-                                .padding(5.dp)
-                                .clip(CircleShape)
-                                .background(customPreview)
-                                .clickable { showColorSheet = true }
-                                .semantics {
-                                    role = Role.RadioButton
-                                    contentDescription = colorDescription
-                                },
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            if (customSelected) {
-                                Icon(
-                                    imageVector = Icons.Filled.Check,
-                                    contentDescription = null,
-                                    tint = customContent,
-                                    modifier = Modifier.size(18.dp),
-                                )
-                            } else {
-                                Text(text = "🎨", fontSize = 18.sp)
-                            }
-                        }
-                    }
-                }
-            }
-
             AnimatedVisibility(visible = errorMessage != null) {
                 Column {
                     Spacer(Modifier.height(14.dp))
@@ -798,7 +678,14 @@ fun AddCardScreen(
                 } else {
                     paletteFor(paletteIndex).container
                 },
+                selectedPaletteIndex = paletteIndex,
+                hasCustomColor = customColorArgb != 0L,
                 onDismiss = { showColorSheet = false },
+                onPresetSelected = { index ->
+                    paletteIndex = index
+                    customColorArgb = 0L
+                    showColorSheet = false
+                },
                 onColorSelected = { color ->
                     customColorArgb = color.toArgb().toLong() and 0xFFFFFFFFL
                     showColorSheet = false
@@ -859,65 +746,9 @@ private fun FormSection(
 }
 
 @Composable
-private fun EmblemSelector(
-    emoji: String,
-    imagePath: String?,
-    pickedUri: String?,
-    onClick: () -> Unit,
-) {
-    val image = rememberPickedImage(pickedUri?.let(Uri::parse), targetSize = 192)
-        ?: rememberEmblemImage(imagePath, targetSize = 192)
-    val emblemDescription = stringResource(R.string.add_emblem_select)
-
-    Box(
-        modifier = Modifier.size(70.dp),
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .clickable(onClick = onClick)
-                .semantics {
-                    role = Role.Button
-                    contentDescription = emblemDescription
-                },
-            contentAlignment = Alignment.Center,
-        ) {
-            if (image != null) {
-                Image(
-                    bitmap = image,
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop,
-                )
-            } else {
-                Text(text = emoji, fontSize = 32.sp)
-            }
-        }
-
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .size(26.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primary)
-                .border(2.dp, MaterialTheme.colorScheme.surfaceContainerLow, CircleShape),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Edit,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.size(14.dp),
-            )
-        }
-    }
-}
-
-@Composable
 private fun DraftPreviewCard(
     name: String,
+    onNameChange: (String) -> Unit,
     code: String,
     format: CardFormat,
     paletteIndex: Int,
@@ -925,11 +756,15 @@ private fun DraftPreviewCard(
     emoji: String,
     imagePath: String?,
     pickedUri: String?,
+    onEmblemClick: () -> Unit,
+    onColorClick: () -> Unit,
 ) {
     val palette = paletteFor(paletteIndex, customColor)
     val shape = RoundedCornerShape(30.dp)
     val image = rememberPickedImage(pickedUri?.let(Uri::parse), targetSize = 192)
         ?: rememberEmblemImage(imagePath, targetSize = 192)
+    val emblemDescription = stringResource(R.string.add_emblem_select)
+    val colorDescription = stringResource(R.string.add_card_color_change)
 
     Box(
         modifier = Modifier
@@ -950,66 +785,114 @@ private fun DraftPreviewCard(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .background(palette.content.copy(alpha = 0.10f))
-                        .border(
-                            1.dp,
-                            palette.content.copy(alpha = 0.12f),
-                            CircleShape,
-                        ),
-                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.size(52.dp),
                 ) {
-                    if (image != null) {
-                        Image(
-                            bitmap = image,
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(CircleShape)
+                            .background(palette.content.copy(alpha = 0.10f))
+                            .border(
+                                1.dp,
+                                palette.content.copy(alpha = 0.12f),
+                                CircleShape,
+                            )
+                            .clickable(onClick = onEmblemClick)
+                            .semantics {
+                                role = Role.Button
+                                contentDescription = emblemDescription
+                            },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        if (image != null) {
+                            Image(
+                                bitmap = image,
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop,
+                            )
+                        } else {
+                            Text(text = emoji, fontSize = 25.sp)
+                        }
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .size(22.dp)
+                            .clip(CircleShape)
+                            .background(palette.content)
+                            .border(2.dp, palette.container, CircleShape),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Edit,
                             contentDescription = null,
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop,
+                            tint = palette.container,
+                            modifier = Modifier.size(12.dp),
                         )
-                    } else {
-                        Text(text = emoji, fontSize = 24.sp)
                     }
                 }
                 Spacer(Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = name.ifBlank { stringResource(R.string.add_preview_store_name) },
-                        style = MaterialTheme.typography.titleLarge,
-                        color = palette.content.copy(alpha = if (name.isBlank()) 0.48f else 1f),
+                    BasicTextField(
+                        value = name,
+                        onValueChange = onNameChange,
+                        modifier = Modifier.fillMaxWidth(),
+                        textStyle = MaterialTheme.typography.titleLarge.copy(
+                            color = palette.content,
+                        ),
+                        cursorBrush = SolidColor(palette.content),
                         maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
+                        decorationBox = { innerTextField ->
+                            if (name.isBlank()) {
+                                Text(
+                                    text = stringResource(R.string.add_preview_store_name),
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = palette.content.copy(alpha = 0.48f),
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+                            innerTextField()
+                        },
                     )
-                    Text(
-                        text = stringResource(R.string.add_preview_loyalty_card),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = palette.content.copy(alpha = 0.62f),
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = if (format.isTwoDimensional && format != CardFormat.PDF_417) {
+                                AppIcons.QrCode
+                            } else {
+                                AppIcons.Barcode
+                            },
+                            contentDescription = null,
+                            tint = palette.content.copy(alpha = 0.62f),
+                            modifier = Modifier.size(12.dp),
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            text = stringResource(R.string.add_preview_loyalty_card) +
+                                " · " + format.shortLabel,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = palette.content.copy(alpha = 0.62f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
                 }
-                Row(
+                Spacer(Modifier.width(8.dp))
+                Box(
                     modifier = Modifier
+                        .size(36.dp)
                         .clip(CircleShape)
                         .background(palette.content.copy(alpha = 0.16f))
-                        .padding(horizontal = 10.dp, vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        imageVector = if (format.isTwoDimensional && format != CardFormat.PDF_417) {
-                            AppIcons.QrCode
-                        } else {
-                            AppIcons.Barcode
+                        .clickable(onClick = onColorClick)
+                        .semantics {
+                            role = Role.Button
+                            contentDescription = colorDescription
                         },
-                        contentDescription = null,
-                        tint = palette.content,
-                        modifier = Modifier.size(14.dp),
-                    )
-                    Spacer(Modifier.width(5.dp))
-                    Text(
-                        text = format.shortLabel,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = palette.content,
-                    )
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(text = "🎨", fontSize = 17.sp)
                 }
             }
 
@@ -1151,7 +1034,10 @@ private fun EmblemSheet(
 @Composable
 private fun ColorSheet(
     initialColor: Color,
+    selectedPaletteIndex: Int,
+    hasCustomColor: Boolean,
     onDismiss: () -> Unit,
+    onPresetSelected: (Int) -> Unit,
     onColorSelected: (Color) -> Unit,
     onReset: () -> Unit,
 ) {
@@ -1172,6 +1058,7 @@ private fun ColorSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
                 .navigationBarsPadding()
                 .padding(horizontal = 20.dp)
                 .padding(bottom = 24.dp),
@@ -1187,6 +1074,59 @@ private fun ColorSheet(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            Spacer(Modifier.height(18.dp))
+
+            Text(
+                text = stringResource(R.string.add_color_presets),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(10.dp))
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                items(CardPaletteCount) { index ->
+                    val palette = paletteFor(index)
+                    val selected = !hasCustomColor && selectedPaletteIndex == index
+                    val colorDescription = stringResource(
+                        R.string.add_card_color_description,
+                        index + 1,
+                    )
+                    Box(
+                        modifier = Modifier
+                            .size(42.dp)
+                            .clip(CircleShape)
+                            .then(
+                                if (selected) {
+                                    Modifier.border(
+                                        2.dp,
+                                        MaterialTheme.colorScheme.onSurface,
+                                        CircleShape,
+                                    )
+                                } else {
+                                    Modifier
+                                },
+                            )
+                            .padding(5.dp)
+                            .clip(CircleShape)
+                            .background(palette.container)
+                            .clickable { onPresetSelected(index) }
+                            .semantics {
+                                role = Role.RadioButton
+                                contentDescription = colorDescription
+                            },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        if (selected) {
+                            Icon(
+                                imageVector = Icons.Filled.Check,
+                                contentDescription = null,
+                                tint = palette.content,
+                                modifier = Modifier.size(18.dp),
+                            )
+                        }
+                    }
+                }
+            }
+
             Spacer(Modifier.height(18.dp))
 
             Box(

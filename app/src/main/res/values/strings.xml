@@ -40,9 +40,6 @@
     <string name="add_title_edit">Edit card</string>
     <string name="add_subtitle_new">Add a card to your wallet</string>
     <string name="add_subtitle_edit">Update the card details</string>
-    <string name="add_section_store">Store</string>
-    <string name="add_store_name_label">Store name</string>
-    <string name="add_store_name_placeholder">For example, “Walmart”</string>
     <string name="add_section_code">Card code</string>
     <string name="add_code_label">Number or code data</string>
     <string name="add_scan_camera">Camera</string>
@@ -54,12 +51,11 @@
     <string name="add_section_note">Note</string>
     <string name="add_note_label">Note (optional)</string>
     <string name="add_note_placeholder">For example, a PIN code or expiry date</string>
-    <string name="add_section_appearance">Appearance</string>
-    <string name="add_card_color">Card color</string>
     <string name="add_card_color_description">Card color %1$d</string>
-    <string name="add_color_custom">Any color</string>
+    <string name="add_card_color_change">Change card color</string>
     <string name="add_color_custom_title">Card color</string>
-    <string name="add_color_custom_text">Pick any shade using hue, saturation, and brightness.</string>
+    <string name="add_color_custom_text">Choose a preset or pick any shade using hue, saturation, and brightness.</string>
+    <string name="add_color_presets">Presets</string>
     <string name="add_color_hue">Hue</string>
     <string name="add_color_saturation">Saturation</string>
     <string name="add_color_brightness">Brightness</string>
@@ -71,6 +67,7 @@
     <string name="add_preview_store_name">Store name</string>
     <string name="add_preview_loyalty_card">Loyalty card</string>
     <string name="add_preview_empty_code">The generated code will appear here</string>
+    <string name="add_preview_edit_hint">Tap the name or emblem to edit, and use 🎨 to change the card color.</string>
     <string name="add_emblem_title">Card emblem</string>
     <string name="add_emblem_text">Pick an emoji or upload a store logo from the gallery.</string>
     <string name="add_emblem_select">Choose card emblem</string>

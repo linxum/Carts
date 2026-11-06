@@ -123,7 +123,15 @@
     <string name="settings_delete_all">Удалить все карты</string>
     <string name="settings_section_about">О приложении</string>
     <string name="settings_about_title">Carts — кошелёк бонусных карт</string>
-    <string name="settings_about_version">Версия 1.0 · Данные хранятся только на устройстве</string>
+    <string name="settings_about_open">Версия, ссылки и сведения о приложении</string>
+    <string name="about_title">О приложении</string>
+    <string name="about_version">Версия %1$s</string>
+    <string name="about_body">Простой кошелёк для карт лояльности и бонусных карт. Коды каждый раз создаются из текста и никогда не сохраняются как фотографии.</string>
+    <string name="about_section_links">Ссылки</string>
+    <string name="about_github_title">GitHub</string>
+    <string name="about_open_link">Открыть ссылку</string>
+    <string name="about_privacy_title">Данные остаются на устройстве</string>
+    <string name="about_privacy_text">Карты и настройки хранятся локально. В приложении нет аккаунта, рекламы и аналитики.</string>
     <string name="settings_delete_all_title">Удалить все карты?</string>
     <string name="settings_delete_all_text">Все карты и их эмблемы будут удалены с устройства. Это действие нельзя отменить.</string>
     <string name="settings_delete_all_confirm">Удалить все</string>

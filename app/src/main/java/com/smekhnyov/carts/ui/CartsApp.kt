@@ -48,6 +48,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.smekhnyov.carts.R
 import com.smekhnyov.carts.data.CardDraft
+import com.smekhnyov.carts.ui.about.AboutScreen
 import com.smekhnyov.carts.ui.add.AddCardScreen
 import com.smekhnyov.carts.ui.detail.CardDetailScreen
 import com.smekhnyov.carts.ui.settings.SettingsScreen
@@ -58,12 +59,14 @@ private const val ROUTE_WALLET = "wallet"
 private const val ROUTE_DETAIL = "detail"
 private const val ROUTE_ADD = "add"
 private const val ROUTE_SETTINGS = "settings"
+private const val ROUTE_ABOUT = "about"
 
 private sealed interface Route {
     data object Wallet : Route
     data class Detail(val cardId: Long) : Route
     data class Add(val cardId: Long?) : Route
     data object Settings : Route
+    data object About : Route
 }
 
 @Composable
@@ -100,11 +103,19 @@ fun CartsApp(
         ROUTE_DETAIL -> Route.Detail(selectedCardId)
         ROUTE_ADD -> Route.Add(editingCardId.takeIf { it > 0L })
         ROUTE_SETTINGS -> Route.Settings
+        ROUTE_ABOUT -> Route.About
         else -> Route.Wallet
     }
 
+    fun goBack() {
+        when (route) {
+            Route.About -> routeKey = ROUTE_SETTINGS
+            else -> goToWallet()
+        }
+    }
+
     BackHandler(enabled = route !is Route.Wallet) {
-        goToWallet()
+        goBack()
     }
 
     Box(
@@ -301,6 +312,13 @@ fun CartsApp(
                                 }
                             }
                         },
+                        onOpenAbout = { routeKey = ROUTE_ABOUT },
+                    )
+                }
+
+                Route.About -> {
+                    AboutScreen(
+                        onBack = { routeKey = ROUTE_SETTINGS },
                     )
                 }
             }

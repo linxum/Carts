@@ -29,9 +29,36 @@ val hasReleaseSigning = listOf(
     releaseKeyPassword,
 ).all { it != null }
 
-// Версию можно передать из CI (-PversionName/-PversionCode), иначе остаются значения по умолчанию.
+// Версию можно передать из CI (-PversionName/-PversionCode). Без параметров берётся
+// git-тег, указывающий ровно на текущий коммит (например, v1.3 → 1.3). Если коммит
+// не отмечен тегом, используются значения по умолчанию.
+fun versionCodeOf(name: String): Int {
+    val parts = name.substringBefore('-').split('.')
+    val major = parts.getOrNull(0)?.toIntOrNull() ?: 0
+    val minor = parts.getOrNull(1)?.toIntOrNull() ?: 0
+    val patch = parts.getOrNull(2)?.toIntOrNull() ?: 0
+    return major * 10000 + minor * 100 + patch
+}
+
+val gitTag = try {
+    providers.exec {
+        commandLine("git", "describe", "--tags", "--exact-match", "HEAD")
+        workingDir = rootDir
+        isIgnoreExitValue = true
+    }.standardOutput.asText.get().trim()
+} catch (_: Exception) {
+    ""
+}
+
+val gitVersionName = gitTag
+    .removePrefix("v")
+    .takeIf { it.matches(Regex("""^[0-9]+(\.[0-9]+){0,2}(-[0-9A-Za-z.-]+)?$""")) }
+
 val buildVersionName = providers.gradleProperty("versionName").orNull?.takeIf(String::isNotBlank)
+    ?: gitVersionName
+    ?: "1.2"
 val buildVersionCode = providers.gradleProperty("versionCode").orNull?.toIntOrNull()
+    ?: versionCodeOf(buildVersionName)
 
 android {
     namespace = "com.smekhnyov.carts"
@@ -43,8 +70,8 @@ android {
         applicationId = "com.smekhnyov.carts"
         minSdk = 31
         targetSdk = 37
-        versionCode = buildVersionCode ?: 10200
-        versionName = buildVersionName ?: "1.2"
+        versionCode = buildVersionCode
+        versionName = buildVersionName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

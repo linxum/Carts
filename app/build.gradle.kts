@@ -43,8 +43,8 @@ android {
         applicationId = "com.smekhnyov.carts"
         minSdk = 31
         targetSdk = 37
-        versionCode = buildVersionCode ?: 1
-        versionName = buildVersionName ?: "1.0"
+        versionCode = buildVersionCode ?: 10200
+        versionName = buildVersionName ?: "1.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

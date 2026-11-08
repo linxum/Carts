@@ -103,6 +103,7 @@ import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 import com.smekhnyov.carts.R
 import com.smekhnyov.carts.barcode.BarcodeRenderer
+import com.smekhnyov.carts.barcode.QrPatternExtractor
 import com.smekhnyov.carts.data.CardDraft
 import com.smekhnyov.carts.data.CardFormat
 import com.smekhnyov.carts.data.LoyaltyCard
@@ -175,6 +176,12 @@ fun AddCardScreen(
     var note by rememberSaveable(initialKey) {
         mutableStateOf(initialCard?.note.orEmpty())
     }
+    var qrPattern by rememberSaveable(initialKey) {
+        mutableStateOf(initialCard?.qrPattern)
+    }
+    var qrPatternCode by rememberSaveable(initialKey) {
+        mutableStateOf(if (initialCard?.qrPattern != null) initialCard.code else null)
+    }
 
     var showEmblemSheet by rememberSaveable { mutableStateOf(false) }
     var showColorSheet by rememberSaveable { mutableStateOf(false) }
@@ -186,9 +193,15 @@ fun AddCardScreen(
     val format = CardFormat.entries.firstOrNull { it.name == formatName } ?: CardFormat.QR_CODE
     val isEditing = initialCard != null
     val customColor = customColorArgb.takeIf { it != 0L }
+    // Сохранённый рисунок QR показываем, только пока не изменились формат и текст кода.
+    val usableQrPattern = qrPattern.takeIf {
+        format == CardFormat.QR_CODE && code.trim() == qrPatternCode
+    }
 
     val onCodeChange: (String) -> Unit = { value ->
         code = value
+        qrPattern = null
+        qrPatternCode = null
         // Ручное редактирование снимает блокировку формата, полученного сканером.
         if (codeFromScan) {
             codeFromScan = false
@@ -244,6 +257,8 @@ fun AddCardScreen(
                     }
                     code = value
                     formatName = detectedFormat.name
+                    qrPattern = null
+                    qrPatternCode = null
                     codeFromScan = true
                     formatAuto = false
                     errorMessage = null
@@ -253,6 +268,21 @@ fun AddCardScreen(
                             context.getString(detectedFormat.labelRes),
                         ),
                     )
+                    if (detectedFormat == CardFormat.QR_CODE) {
+                        // Точный рисунок извлекаем в фоне, текст кода уже доступен.
+                        scope.launch {
+                            val scannedPattern = withContext(Dispatchers.IO) {
+                                QrPatternExtractor.fromUri(context, uri)
+                                    ?.takeIf { it.text == value }
+                                    ?.encoded
+                            }
+                            // Не применяем рисунок, если код успели изменить.
+                            if (code.trim() == value) {
+                                qrPattern = scannedPattern
+                                qrPatternCode = if (scannedPattern != null) value else null
+                            }
+                        }
+                    }
                 }
             }
             .addOnFailureListener {
@@ -288,7 +318,9 @@ fun AddCardScreen(
         errorMessage = null
         scope.launch {
             val valid = withContext(Dispatchers.Default) {
-                BarcodeRenderer.isValid(trimmedCode, format)
+                // Если сохранён точный рисунок QR, текст заново кодировать не нужно:
+                // исходный код мог использовать не-UTF-8 набор или нестандартные сегменты.
+                usableQrPattern != null || BarcodeRenderer.isValid(trimmedCode, format)
             }
             if (!valid) {
                 saving = false
@@ -310,6 +342,7 @@ fun AddCardScreen(
                 newEmblemUri = pickedUri?.let(Uri::parse),
                 removeEmblemImage = removeImage,
                 note = note.trim(),
+                qrPattern = usableQrPattern,
             )
             onSave(draft) { success ->
                 saving = false
@@ -385,6 +418,7 @@ fun AddCardScreen(
                 },
                 code = code,
                 format = format,
+                qrPattern = usableQrPattern,
                 paletteIndex = paletteIndex,
                 customColor = customColor,
                 emoji = emoji,
@@ -700,9 +734,11 @@ fun AddCardScreen(
         if (scannerOpen) {
             ScannerScreen(
                 onClose = { scannerOpen = false },
-                onResult = { value, scannedFormat ->
+                onResult = { value, scannedFormat, scannedPattern ->
                     code = value
                     formatName = scannedFormat.name
+                    qrPattern = scannedPattern
+                    qrPatternCode = if (scannedPattern != null) value else null
                     codeFromScan = true
                     formatAuto = false
                     scannerOpen = false
@@ -751,6 +787,7 @@ private fun DraftPreviewCard(
     onNameChange: (String) -> Unit,
     code: String,
     format: CardFormat,
+    qrPattern: String?,
     paletteIndex: Int,
     customColor: Long?,
     emoji: String,
@@ -920,6 +957,7 @@ private fun DraftPreviewCard(
                     BarcodeView(
                         content = code,
                         format = format,
+                        qrPattern = qrPattern,
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(horizontal = 18.dp, vertical = 8.dp),

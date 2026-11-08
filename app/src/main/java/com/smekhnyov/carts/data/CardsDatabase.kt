@@ -22,6 +22,7 @@ internal class CardsDatabase(context: Context) :
                 $COLUMN_EMBLEM_EMOJI TEXT,
                 $COLUMN_EMBLEM_IMAGE TEXT,
                 $COLUMN_NOTE TEXT,
+                $COLUMN_QR_PATTERN TEXT,
                 $COLUMN_CREATED_AT INTEGER NOT NULL,
                 $COLUMN_POSITION INTEGER NOT NULL DEFAULT 0
             )
@@ -81,6 +82,11 @@ internal class CardsDatabase(context: Context) :
                 "ALTER TABLE $TABLE_CARDS ADD COLUMN $COLUMN_CUSTOM_COLOR INTEGER",
             )
         }
+        if (oldVersion < 5) {
+            db.execSQL(
+                "ALTER TABLE $TABLE_CARDS ADD COLUMN $COLUMN_QR_PATTERN TEXT",
+            )
+        }
     }
 
     fun readAll(): List<LoyaltyCard> {
@@ -136,6 +142,7 @@ internal class CardsDatabase(context: Context) :
                 put(COLUMN_EMBLEM_EMOJI, draft.emblemEmoji)
                 put(COLUMN_EMBLEM_IMAGE, emblemImagePath)
                 put(COLUMN_NOTE, draft.note.trim().ifEmpty { null })
+                put(COLUMN_QR_PATTERN, draft.qrPattern)
                 put(COLUMN_CREATED_AT, createdAt)
                 put(COLUMN_POSITION, position)
             }
@@ -157,6 +164,7 @@ internal class CardsDatabase(context: Context) :
             put(COLUMN_EMBLEM_EMOJI, draft.emblemEmoji)
             put(COLUMN_EMBLEM_IMAGE, emblemImagePath)
             put(COLUMN_NOTE, draft.note.trim().ifEmpty { null })
+            put(COLUMN_QR_PATTERN, draft.qrPattern)
         }
         return writableDatabase.update(
             TABLE_CARDS,
@@ -240,11 +248,12 @@ internal class CardsDatabase(context: Context) :
         createdAt = getLong(getColumnIndexOrThrow(COLUMN_CREATED_AT)),
         position = getInt(getColumnIndexOrThrow(COLUMN_POSITION)),
         note = getString(getColumnIndexOrThrow(COLUMN_NOTE)),
+        qrPattern = getString(getColumnIndexOrThrow(COLUMN_QR_PATTERN)),
     )
 
     companion object {
         private const val DATABASE_NAME = "carts.db"
-        private const val DATABASE_VERSION = 4
+        private const val DATABASE_VERSION = 5
 
         const val TABLE_CARDS = "cards"
 
@@ -257,6 +266,7 @@ internal class CardsDatabase(context: Context) :
         const val COLUMN_EMBLEM_EMOJI = "emblem_emoji"
         const val COLUMN_EMBLEM_IMAGE = "emblem_image"
         const val COLUMN_NOTE = "note"
+        const val COLUMN_QR_PATTERN = "qr_pattern"
         const val COLUMN_CREATED_AT = "created_at"
         const val COLUMN_POSITION = "position"
 
@@ -270,6 +280,7 @@ internal class CardsDatabase(context: Context) :
             COLUMN_EMBLEM_EMOJI,
             COLUMN_EMBLEM_IMAGE,
             COLUMN_NOTE,
+            COLUMN_QR_PATTERN,
             COLUMN_CREATED_AT,
             COLUMN_POSITION,
         )

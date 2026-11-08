@@ -95,6 +95,7 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 import com.smekhnyov.carts.data.CardFormat
+import com.smekhnyov.carts.barcode.QrPatternExtractor
 import com.smekhnyov.carts.ui.components.AppIcons
 import com.smekhnyov.carts.ui.components.SystemBars
 import com.smekhnyov.carts.ui.components.findActivity
@@ -105,7 +106,7 @@ import kotlin.math.min
 @Composable
 fun ScannerScreen(
     onClose: () -> Unit,
-    onResult: (rawValue: String, format: CardFormat) -> Unit,
+    onResult: (rawValue: String, format: CardFormat, qrPattern: String?) -> Unit,
 ) {
     val context = LocalContext.current
     var permissionGranted by remember {
@@ -165,7 +166,7 @@ fun ScannerScreen(
 @Composable
 private fun CameraScanner(
     onClose: () -> Unit,
-    onResult: (rawValue: String, format: CardFormat) -> Unit,
+    onResult: (rawValue: String, format: CardFormat, qrPattern: String?) -> Unit,
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -178,8 +179,8 @@ private fun CameraScanner(
         }
     }
     val analyzer = remember {
-        BarcodeAnalyzer { rawValue, mlkitFormat ->
-            currentOnResult(rawValue, mlkitFormat.toCardFormat())
+        BarcodeAnalyzer { rawValue, mlkitFormat, qrPattern ->
+            currentOnResult(rawValue, mlkitFormat.toCardFormat(), qrPattern)
         }
     }
     var camera by remember { mutableStateOf<Camera?>(null) }
@@ -495,7 +496,7 @@ private fun CameraPermission(
 }
 
 private class BarcodeAnalyzer(
-    private val onBarcode: (rawValue: String, format: Int) -> Unit,
+    private val onBarcode: (rawValue: String, format: Int, qrPattern: String?) -> Unit,
 ) : ImageAnalysis.Analyzer {
 
     private val scanner: BarcodeScanner = BarcodeScanning.getClient()
@@ -524,10 +525,20 @@ private class BarcodeAnalyzer(
                     ?: return@addOnSuccessListener
                 val value = barcode.rawValue ?: return@addOnSuccessListener
                 if (delivered.compareAndSet(false, true)) {
+                    // Для QR дополнительно сохраняем точный рисунок модулей.
+                    val qrPattern = if (barcode.format == Barcode.FORMAT_QR_CODE) {
+                        runCatching {
+                            QrPatternExtractor.fromImageProxy(imageProxy)
+                                ?.takeIf { it.text == value }
+                                ?.encoded
+                        }.getOrNull()
+                    } else {
+                        null
+                    }
                     // Небольшая пауза, чтобы кадр успел «зафиксироваться» на экране.
                     mainHandler.postDelayed(
                         {
-                            if (!closed.get()) onBarcode(value, barcode.format)
+                            if (!closed.get()) onBarcode(value, barcode.format, qrPattern)
                         },
                         SCAN_DELAY_MS,
                     )

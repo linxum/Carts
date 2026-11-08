@@ -262,6 +262,7 @@ fun CardDetailScreen(
                         BarcodeView(
                             content = card.code,
                             format = card.format,
+                            qrPattern = card.qrPattern,
                             modifier = barcodeModifier.padding(
                                 horizontal = if (card.format.isSquare) 12.dp else 0.dp,
                             ),

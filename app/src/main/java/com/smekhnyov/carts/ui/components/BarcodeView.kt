@@ -41,6 +41,7 @@ fun BarcodeView(
     content: String,
     format: CardFormat,
     modifier: Modifier = Modifier,
+    qrPattern: String? = null,
 ) {
     BoxWithConstraints(modifier = modifier, contentAlignment = Alignment.Center) {
         val density = LocalDensity.current
@@ -55,10 +56,11 @@ fun BarcodeView(
             format,
             targetWidth,
             targetHeight,
+            qrPattern,
         ) {
             value = BarcodeState.Loading
             val bitmap = withContext(Dispatchers.Default) {
-                BarcodeRenderer.render(content, format, targetWidth, targetHeight)
+                BarcodeRenderer.render(content, format, targetWidth, targetHeight, qrPattern)
             }
             value = bitmap?.let { BarcodeState.Ready(it.asImageBitmap()) } ?: BarcodeState.Error
         }

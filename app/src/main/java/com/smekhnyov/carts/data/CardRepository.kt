@@ -110,6 +110,7 @@ class CardRepository(context: Context) {
                     card.customColor?.let { put("customColor", it) }
                     card.emblemEmoji?.let { put("emblemEmoji", it) }
                     card.note?.takeIf { it.isNotBlank() }?.let { put("note", it) }
+                    card.qrPattern?.takeIf { it.isNotBlank() }?.let { put("qrPattern", it) }
                     card.emblemImagePath?.let { path ->
                         readEmblemBase64(path)?.let { put("emblemImage", it) }
                     }
@@ -166,6 +167,7 @@ class CardRepository(context: Context) {
                 emblemEmoji = item.optString("emblemEmoji").takeIf { it.isNotBlank() },
                 emblemImagePath = imagePath,
                 note = item.optString("note"),
+                qrPattern = item.optString("qrPattern").takeIf { it.isNotBlank() },
             )
             database.insert(
                 draft = draft,
@@ -259,6 +261,6 @@ class CardRepository(context: Context) {
     }.getOrNull()
 
     companion object {
-        private const val BACKUP_VERSION = 3
+        private const val BACKUP_VERSION = 4
     }
 }

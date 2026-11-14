@@ -9,16 +9,21 @@ import com.google.zxing.BinaryBitmap
 import com.google.zxing.DecodeHintType
 import com.google.zxing.PlanarYUVLuminanceSource
 import com.google.zxing.RGBLuminanceSource
+import com.google.zxing.aztec.decoder.Decoder as AztecDecoder
+import com.google.zxing.aztec.detector.Detector as AztecDetector
 import com.google.zxing.common.HybridBinarizer
-import com.google.zxing.qrcode.decoder.Decoder
-import com.google.zxing.qrcode.detector.Detector
+import com.google.zxing.datamatrix.decoder.Decoder as DataMatrixDecoder
+import com.google.zxing.datamatrix.detector.Detector as DataMatrixDetector
+import com.google.zxing.qrcode.decoder.Decoder as QrDecoder
+import com.google.zxing.qrcode.detector.Detector as QrDetector
+import com.smekhnyov.carts.data.CardFormat
 
 /**
- * Достаёт из кадра или фотографии не только текст QR, но и точный рисунок модулей.
+ * Достаёт из кадра или фотографии не только текст 2D-кода, но и точный рисунок модулей.
  * Рисунок сохраняется отдельно и используется при показе, чтобы код выглядел
- * ровно так же, как исходный.
+ * ровно так же, как исходный. Поддерживаются QR, Data Matrix и Aztec.
  */
-object QrPatternExtractor {
+object CodePatternExtractor {
 
     data class Captured(val text: String, val encoded: String)
 
@@ -27,7 +32,8 @@ object QrPatternExtractor {
         DecodeHintType.CHARACTER_SET to "UTF-8",
     )
 
-    fun fromImageProxy(proxy: ImageProxy): Captured? {
+    fun fromImageProxy(proxy: ImageProxy, format: CardFormat): Captured? {
+        if (!format.supportsExactPattern) return null
         val plane = proxy.planes.firstOrNull() ?: return null
         val width = proxy.width
         val height = proxy.height
@@ -67,10 +73,11 @@ object QrPatternExtractor {
             height,
             false,
         )
-        return read(BinaryBitmap(HybridBinarizer(source)))
+        return read(BinaryBitmap(HybridBinarizer(source)), format)
     }
 
-    fun fromUri(context: Context, uri: Uri): Captured? {
+    fun fromUri(context: Context, uri: Uri, format: CardFormat): Captured? {
+        if (!format.supportsExactPattern) return null
         val bitmap = decodeSampledBitmap(context, uri) ?: return null
         return try {
             val width = bitmap.width
@@ -79,22 +86,43 @@ object QrPatternExtractor {
             val pixels = IntArray(width * height)
             bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
             val source = RGBLuminanceSource(width, height, pixels)
-            read(BinaryBitmap(HybridBinarizer(source)))
+            read(BinaryBitmap(HybridBinarizer(source)), format)
         } finally {
             bitmap.recycle()
         }
     }
 
-    private fun read(bitmap: BinaryBitmap): Captured? = runCatching {
-        val detected = Detector(bitmap.blackMatrix).detect(hints)
+    private fun read(bitmap: BinaryBitmap, format: CardFormat): Captured? = runCatching {
+        when (format) {
+            CardFormat.DATA_MATRIX -> readDataMatrix(bitmap)
+            CardFormat.AZTEC -> readAztec(bitmap)
+            else -> readQr(bitmap)
+        }
+    }.getOrNull()
+
+    private fun readQr(bitmap: BinaryBitmap): Captured? {
+        val detected = QrDetector(bitmap.blackMatrix).detect(hints)
         val bits = detected.bits
         // ZXing Decoder снимает маску прямо в переданной матрице, поэтому рисунок
         // кодируем до декодирования текста — иначе сохранится уже изменённый код.
-        val encoded = QrPatternCodec.encode(bits)
-        val decoded = Decoder().decode(bits, hints)
-        val text = decoded.text ?: return@runCatching null
-        Captured(text = text, encoded = encoded)
-    }.getOrNull()
+        val encoded = CodePatternCodec.encode(bits)
+        val text = QrDecoder().decode(bits, hints).text ?: return null
+        return Captured(text = text, encoded = encoded)
+    }
+
+    private fun readDataMatrix(bitmap: BinaryBitmap): Captured? {
+        val bits = DataMatrixDetector(bitmap.blackMatrix).detect().bits
+        val encoded = CodePatternCodec.encode(bits)
+        val text = DataMatrixDecoder().decode(bits).text ?: return null
+        return Captured(text = text, encoded = encoded)
+    }
+
+    private fun readAztec(bitmap: BinaryBitmap): Captured? {
+        val detected = AztecDetector(bitmap.blackMatrix).detect()
+        val encoded = CodePatternCodec.encode(detected.bits)
+        val text = AztecDecoder().decode(detected).text ?: return null
+        return Captured(text = text, encoded = encoded)
+    }
 
     private fun decodeSampledBitmap(context: Context, uri: Uri): Bitmap? {
         val resolver = context.contentResolver

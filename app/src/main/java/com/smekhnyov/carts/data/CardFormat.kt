@@ -102,6 +102,13 @@ enum class CardFormat(
         placeholderRes = R.string.placeholder_codabar,
     );
 
+    /**
+     * Для этих форматов ZXing умеет отдать матрицу модулей, поэтому при сканировании
+     * сохраняется точный рисунок кода, а не только текст.
+     */
+    val supportsExactPattern: Boolean
+        get() = this == QR_CODE || this == DATA_MATRIX || this == AZTEC;
+
     companion object {
         fun fromStorage(value: String?): CardFormat =
             entries.firstOrNull { it.name == value } ?: QR_CODE

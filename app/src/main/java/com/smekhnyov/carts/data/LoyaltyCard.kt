@@ -16,8 +16,8 @@ data class LoyaltyCard(
     val position: Int = 0,
     /** Необязательное примечание, например ПИН-код или срок действия. */
     val note: String? = null,
-    /** Точный рисунок QR, сохранённый при сканировании (сжатая матрица модулей). */
-    val qrPattern: String? = null,
+    /** Точный рисунок 2D-кода (QR, Data Matrix, Aztec), сохранённый при сканировании. */
+    val codePattern: String? = null,
 ) {
     val shortCode: String
         get() = if (code.length > 4) "•••• ${code.takeLast(4)}" else code
@@ -37,6 +37,6 @@ data class CardDraft(
     val newEmblemUri: Uri? = null,
     val removeEmblemImage: Boolean = false,
     val note: String = "",
-    /** Точный рисунок QR, если карта добавлена сканированием и код не менялся. */
-    val qrPattern: String? = null,
+    /** Точный рисунок 2D-кода, если карта добавлена сканированием и код не менялся. */
+    val codePattern: String? = null,
 )

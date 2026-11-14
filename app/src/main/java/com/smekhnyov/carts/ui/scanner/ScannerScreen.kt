@@ -95,7 +95,7 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 import com.smekhnyov.carts.data.CardFormat
-import com.smekhnyov.carts.barcode.QrPatternExtractor
+import com.smekhnyov.carts.barcode.CodePatternExtractor
 import com.smekhnyov.carts.ui.components.AppIcons
 import com.smekhnyov.carts.ui.components.SystemBars
 import com.smekhnyov.carts.ui.components.findActivity
@@ -106,7 +106,7 @@ import kotlin.math.min
 @Composable
 fun ScannerScreen(
     onClose: () -> Unit,
-    onResult: (rawValue: String, format: CardFormat, qrPattern: String?) -> Unit,
+    onResult: (rawValue: String, format: CardFormat, codePattern: String?) -> Unit,
 ) {
     val context = LocalContext.current
     var permissionGranted by remember {
@@ -166,7 +166,7 @@ fun ScannerScreen(
 @Composable
 private fun CameraScanner(
     onClose: () -> Unit,
-    onResult: (rawValue: String, format: CardFormat, qrPattern: String?) -> Unit,
+    onResult: (rawValue: String, format: CardFormat, codePattern: String?) -> Unit,
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -179,8 +179,8 @@ private fun CameraScanner(
         }
     }
     val analyzer = remember {
-        BarcodeAnalyzer { rawValue, mlkitFormat, qrPattern ->
-            currentOnResult(rawValue, mlkitFormat.toCardFormat(), qrPattern)
+        BarcodeAnalyzer { rawValue, mlkitFormat, codePattern ->
+            currentOnResult(rawValue, mlkitFormat.toCardFormat(), codePattern)
         }
     }
     var camera by remember { mutableStateOf<Camera?>(null) }
@@ -496,7 +496,7 @@ private fun CameraPermission(
 }
 
 private class BarcodeAnalyzer(
-    private val onBarcode: (rawValue: String, format: Int, qrPattern: String?) -> Unit,
+    private val onBarcode: (rawValue: String, format: Int, codePattern: String?) -> Unit,
 ) : ImageAnalysis.Analyzer {
 
     private val scanner: BarcodeScanner = BarcodeScanning.getClient()
@@ -525,10 +525,11 @@ private class BarcodeAnalyzer(
                     ?: return@addOnSuccessListener
                 val value = barcode.rawValue ?: return@addOnSuccessListener
                 if (delivered.compareAndSet(false, true)) {
-                    // Для QR дополнительно сохраняем точный рисунок модулей.
-                    val qrPattern = if (barcode.format == Barcode.FORMAT_QR_CODE) {
+                    // Для 2D-кодов дополнительно сохраняем точный рисунок модулей.
+                    val cardFormat = barcode.format.toCardFormat()
+                    val codePattern = if (cardFormat.supportsExactPattern) {
                         runCatching {
-                            QrPatternExtractor.fromImageProxy(imageProxy)
+                            CodePatternExtractor.fromImageProxy(imageProxy, cardFormat)
                                 ?.takeIf { it.text == value }
                                 ?.encoded
                         }.getOrNull()
@@ -538,7 +539,7 @@ private class BarcodeAnalyzer(
                     // Небольшая пауза, чтобы кадр успел «зафиксироваться» на экране.
                     mainHandler.postDelayed(
                         {
-                            if (!closed.get()) onBarcode(value, barcode.format, qrPattern)
+                            if (!closed.get()) onBarcode(value, barcode.format, codePattern)
                         },
                         SCAN_DELAY_MS,
                     )

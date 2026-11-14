@@ -1,15 +1,12 @@
 package com.smekhnyov.carts.ui.cards
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
-import com.smekhnyov.carts.ui.theme.LocalCardColorScheme
 
 /**
- * Оформление карты строится на цветовых ролях Material 3, поэтому карты
- * автоматически подстраиваются под светлую/тёмную тему и выбранный акцент.
- * Градиенты не используются — только сплошные поверхности.
+ * Оформление карты не зависит от темы приложения: цвета пресетов фиксированы,
+ * поэтому смена светлой/тёмной темы, акцента или цветов обоев не перекрашивает
+ * карты. Градиенты не используются — только сплошные поверхности.
  */
 data class CardPalette(
     val container: Color,
@@ -19,55 +16,24 @@ data class CardPalette(
 
 const val CardPaletteCount = 8
 
-@Composable
+/** Фиксированные цвета пресетов, одинаковые в любой теме. */
+private val PresetColors = listOf(
+    Color(0xFFEADDFF), // лавандовый
+    Color(0xFFE8DEF8), // сиреневый
+    Color(0xFFFFD8E4), // розовый
+    Color(0xFFE6E1E5), // нейтральный
+    Color(0xFF6750A4), // фиолетовый
+    Color(0xFF625B71), // серо-фиолетовый
+    Color(0xFF7D5260), // винный
+    Color(0xFF313033), // графитовый
+)
+
+/** Цвет карты берётся из БД: индекс пресета или пользовательский цвет. */
 fun paletteFor(index: Int, customColor: Long? = null): CardPalette {
     if (customColor != null) {
         return customPalette(Color(customColor))
     }
-    val scheme = LocalCardColorScheme.current ?: MaterialTheme.colorScheme
-    val palettes = listOf(
-        CardPalette(
-            container = scheme.primaryContainer,
-            content = scheme.onPrimaryContainer,
-            accent = scheme.primary,
-        ),
-        CardPalette(
-            container = scheme.secondaryContainer,
-            content = scheme.onSecondaryContainer,
-            accent = scheme.secondary,
-        ),
-        CardPalette(
-            container = scheme.tertiaryContainer,
-            content = scheme.onTertiaryContainer,
-            accent = scheme.tertiary,
-        ),
-        CardPalette(
-            container = scheme.surfaceContainerHighest,
-            content = scheme.onSurface,
-            accent = scheme.primary,
-        ),
-        CardPalette(
-            container = scheme.primary,
-            content = scheme.onPrimary,
-            accent = scheme.onPrimary,
-        ),
-        CardPalette(
-            container = scheme.secondary,
-            content = scheme.onSecondary,
-            accent = scheme.onSecondary,
-        ),
-        CardPalette(
-            container = scheme.tertiary,
-            content = scheme.onTertiary,
-            accent = scheme.onTertiary,
-        ),
-        CardPalette(
-            container = scheme.inverseSurface,
-            content = scheme.inverseOnSurface,
-            accent = scheme.inverseOnSurface,
-        ),
-    )
-    return palettes[index.mod(palettes.size)]
+    return customPalette(PresetColors[index.mod(PresetColors.size)])
 }
 
 /** Любой пользовательский цвет с автоматическим контрастным содержимым. */

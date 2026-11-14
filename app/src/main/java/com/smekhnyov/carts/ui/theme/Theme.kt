@@ -8,8 +8,6 @@ import androidx.compose.material3.Shapes
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -26,11 +24,9 @@ private val AppShapes = Shapes(
 )
 
 /**
- * Схема, из которой берутся цвета карт. Может отличаться от [MaterialTheme.colorScheme],
- * если включены цвета обоев, но пользователь не хочет перекрашивать карты.
+ * Тема приложения управляет только оформлением интерфейса. Цвета карт заданы
+ * фиксированными пресетами и не зависят от темы, акцента или цветов обоев.
  */
-val LocalCardColorScheme = staticCompositionLocalOf<ColorScheme?> { null }
-
 @Composable
 fun CartsTheme(
     settings: AppSettings = AppSettings(),
@@ -53,20 +49,13 @@ fun CartsTheme(
     } else {
         accentScheme
     }
-    val cardColorScheme = if (settings.useDynamicColor && !settings.useDynamicColorForCards) {
-        accentScheme
-    } else {
-        colorScheme
-    }
 
-    CompositionLocalProvider(LocalCardColorScheme provides cardColorScheme) {
-        MaterialTheme(
-            colorScheme = colorScheme,
-            shapes = AppShapes,
-            typography = Typography,
-            content = content,
-        )
-    }
+    MaterialTheme(
+        colorScheme = colorScheme,
+        shapes = AppShapes,
+        typography = Typography,
+        content = content,
+    )
 }
 
 private fun ColorScheme.withAccent(accent: AppAccent, dark: Boolean): ColorScheme =

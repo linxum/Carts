@@ -271,8 +271,6 @@ fun CartsApp(
                         onBack = ::goToWallet,
                         onThemeModeChange = settingsViewModel::setThemeMode,
                         onDynamicColorChange = settingsViewModel::setUseDynamicColor,
-                        onDynamicColorForCardsChange =
-                            settingsViewModel::setUseDynamicColorForCards,
                         onAccentChange = settingsViewModel::setAccent,
                         onExport = { uri ->
                             viewModel.exportCards(uri) { result ->

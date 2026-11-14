@@ -99,8 +99,6 @@
     <string name="settings_theme_dark">Dark</string>
     <string name="settings_dynamic_title">Wallpaper colors</string>
     <string name="settings_dynamic_subtitle">Use the Material You palette from the home screen</string>
-    <string name="settings_cards_dynamic_title">Wallpaper colors for cards</string>
-    <string name="settings_cards_dynamic_subtitle">When disabled, cards use the selected accent instead of wallpaper colors.</string>
     <string name="settings_accent">Accent color</string>
     <string name="settings_accent_from_system">The accent comes from the system palette.</string>
     <string name="settings_section_data">Data</string>

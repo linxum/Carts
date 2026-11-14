@@ -99,8 +99,6 @@
     <string name="settings_theme_dark">Тёмная</string>
     <string name="settings_dynamic_title">Цвета обоев</string>
     <string name="settings_dynamic_subtitle">Использовать палитру Material You с рабочего стола</string>
-    <string name="settings_cards_dynamic_title">Цвета обоев для карт</string>
-    <string name="settings_cards_dynamic_subtitle">Если выключено, карты используют выбранный акцент вместо цветов обоев.</string>
     <string name="settings_accent">Цветовой акцент</string>
     <string name="settings_accent_from_system">Акцент берётся из системной палитры.</string>
     <string name="settings_section_data">Данные</string>

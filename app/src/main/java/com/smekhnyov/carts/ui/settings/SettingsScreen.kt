@@ -78,7 +78,6 @@ fun SettingsScreen(
     onBack: () -> Unit,
     onThemeModeChange: (ThemeMode) -> Unit,
     onDynamicColorChange: (Boolean) -> Unit,
-    onDynamicColorForCardsChange: (Boolean) -> Unit,
     onAccentChange: (AppAccent) -> Unit,
     onExport: (Uri) -> Unit,
     onImport: (Uri) -> Unit,
@@ -174,16 +173,6 @@ fun SettingsScreen(
                     checked = settings.useDynamicColor,
                     onCheckedChange = onDynamicColorChange,
                 )
-
-                if (settings.useDynamicColor) {
-                    Spacer(Modifier.height(14.dp))
-                    SettingSwitchRow(
-                        title = stringResource(R.string.settings_cards_dynamic_title),
-                        subtitle = stringResource(R.string.settings_cards_dynamic_subtitle),
-                        checked = settings.useDynamicColorForCards,
-                        onCheckedChange = onDynamicColorForCardsChange,
-                    )
-                }
 
                 Spacer(Modifier.height(14.dp))
                 Text(

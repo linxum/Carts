@@ -174,34 +174,27 @@ fun SettingsScreen(
                     onCheckedChange = onDynamicColorChange,
                 )
 
-                Spacer(Modifier.height(14.dp))
-                Text(
-                    text = stringResource(R.string.settings_accent),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Spacer(Modifier.height(10.dp))
-                Row(
-                    modifier = Modifier.horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    AppAccent.entries.forEach { accent ->
-                        AccentSwatch(
-                            accent = accent,
-                            selected = !settings.useDynamicColor && settings.accent == accent,
-                            enabled = !settings.useDynamicColor,
-                            onClick = { onAccentChange(accent) },
-                        )
-                    }
-                }
-                if (settings.useDynamicColor) {
-                    Spacer(Modifier.height(8.dp))
+                if (!settings.useDynamicColor) {
+                    Spacer(Modifier.height(14.dp))
                     Text(
-                        text = stringResource(R.string.settings_accent_from_system),
-                        style = MaterialTheme.typography.bodySmall,
+                        text = stringResource(R.string.settings_accent),
+                        style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                    Spacer(Modifier.height(10.dp))
+                    Row(
+                        modifier = Modifier.horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        AppAccent.entries.forEach { accent ->
+                            AccentSwatch(
+                                accent = accent,
+                                selected = settings.accent == accent,
+                                onClick = { onAccentChange(accent) },
+                            )
+                        }
+                    }
                 }
             }
 
@@ -411,7 +404,6 @@ private fun SettingSwitchRow(
 private fun AccentSwatch(
     accent: AppAccent,
     selected: Boolean,
-    enabled: Boolean,
     onClick: () -> Unit,
 ) {
     val color = Color(accent.lightPrimary)
@@ -433,8 +425,8 @@ private fun AccentSwatch(
             )
             .padding(5.dp)
             .clip(CircleShape)
-            .background(if (enabled) color else color.copy(alpha = 0.35f))
-            .clickable(enabled = enabled, onClick = onClick)
+            .background(color)
+            .clickable(onClick = onClick)
             .semantics {
                 role = Role.RadioButton
                 contentDescription = accentDescription

@@ -100,7 +100,6 @@
     <string name="settings_dynamic_title">Wallpaper colors</string>
     <string name="settings_dynamic_subtitle">Use the Material You palette from the home screen</string>
     <string name="settings_accent">Accent color</string>
-    <string name="settings_accent_from_system">The accent comes from the system palette.</string>
     <string name="settings_section_data">Data</string>
     <plurals name="settings_card_count">
         <item quantity="one">%1$d card in your wallet.</item>
